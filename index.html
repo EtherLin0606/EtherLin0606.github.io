@@ -154,7 +154,7 @@
 <div class="sidebar-state">
   <div class="sidebar-state-article">
     <div>文章</div>
-    <div class="sidebar-state-number">5</div>
+    <div class="sidebar-state-number">6</div>
   </div>
   <div class="sidebar-state-category">
     <div>分类</div>
@@ -211,7 +211,7 @@
     <div class="widget-wrap" data-aos="fade-up">
       <h3 class="widget-title">分类</h3>
       <div class="widget">
-        <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AC%94%E8%AE%B0/" title="笔记">笔记</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%B5%9B%E9%A2%98/" title="赛题">赛题</a><span class="category-list-count">3</span></li></ul>
+        <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AC%94%E8%AE%B0/" title="笔记">笔记</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%B5%9B%E9%A2%98/" title="赛题">赛题</a><span class="category-list-count">4</span></li></ul>
       </div>
     </div>
   </div>
@@ -232,8 +232,31 @@
           <section id="main" aria-label="Main content">  <!-- ✅ 修复1: 首页文章列表增加 page.posts 空值保护 -->
       <div class="post-wrapper">
   <div class="post-wrap left" data-aos="fade-up">
-      <a class="post-link" href="/2026/05/29/LitCTF2025/" aria-label="LitCTF2025" title="LitCTF2025"></a>
+      <a class="post-link" href="/2026/05/30/2026-DASCTF%E5%A4%8F%E5%AD%A3%E8%B5%9B/" aria-label="2026 DASCTF夏季赛" title="2026 DASCTF夏季赛"></a>
     <div class="post-cover left">
+        <img data-src="/images/covers/06.jpg" data-sizes="auto" alt="2026 DASCTF夏季赛" class="lazyload">
+    </div>
+    <div class="post-info">
+      <div class="post-meta">
+        <span><span class="icon-calendar"></span>2026-05-30</span>
+        <span><span class="icon-pencil"></span>5k 字</span>
+        <span><span class="icon-clock"></span>24 分钟</span>
+      </div>
+      <h2 class="post-title">2026 DASCTF夏季赛</h2>
+      <article class="post-article">
+           CorpGate
+ 题目概述
+本题是一条精心设计的三段式攻击链：原型链污染触发 JWT 签名密钥轮换 → 伪造 Admin Token → 通过合法 Admin 接口获取一次性诊断引用 → 执行命令读取 Flag。题目综合考察了 Node.js 原型链污染、JWT 安全机制以及代码审计能力。
+ 解题思路总览
+12345678910111213141516171819普通用户注册/登录       ↓POST /api/settings (原型链污染)       ↓Object.prototype.pending = EVIL_KEY       ↓GET /api/system/healt
+      </article>
+    </div>
+  </div>
+</div>
+      <div class="post-wrapper">
+  <div class="post-wrap right" data-aos="fade-up">
+      <a class="post-link" href="/2026/05/29/LitCTF2025/" aria-label="LitCTF2025" title="LitCTF2025"></a>
+    <div class="post-cover right">
         <img data-src="/images/covers/02.jpg" data-sizes="auto" alt="LitCTF2025" class="lazyload">
     </div>
     <div class="post-info">
@@ -253,9 +276,9 @@
   </div>
 </div>
       <div class="post-wrapper">
-  <div class="post-wrap right" data-aos="fade-up">
+  <div class="post-wrap left" data-aos="fade-up">
       <a class="post-link" href="/2026/05/28/%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8/" aria-label="工具使用" title="工具使用"></a>
-    <div class="post-cover right">
+    <div class="post-cover left">
         <img data-src="/images/covers/12.jpg" data-sizes="auto" alt="工具使用" class="lazyload">
     </div>
     <div class="post-info">
@@ -284,9 +307,9 @@
   </div>
 </div>
       <div class="post-wrapper">
-  <div class="post-wrap left" data-aos="fade-up">
+  <div class="post-wrap right" data-aos="fade-up">
       <a class="post-link" href="/2026/05/25/LitCTF2026/" aria-label="LitCTF2026" title="LitCTF2026"></a>
-    <div class="post-cover left">
+    <div class="post-cover right">
         <img data-src="/images/covers/07.jpg" data-sizes="auto" alt="LitCTF2026" class="lazyload">
     </div>
     <div class="post-info">
@@ -312,9 +335,9 @@
   </div>
 </div>
       <div class="post-wrapper">
-  <div class="post-wrap right" data-aos="fade-up">
+  <div class="post-wrap left" data-aos="fade-up">
       <a class="post-link" href="/2026/04/23/CTF%E5%A4%A7%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%EF%BC%88LLM%EF%BC%89%E6%8F%90%E7%A4%BA%E8%AF%8D%E6%B3%A8%E5%85%A512%E7%A7%8D%E6%96%B9%E6%B3%95/" aria-label="CTF大语言模型（LLM）提示词注入12种方法" title="CTF大语言模型（LLM）提示词注入12种方法"></a>
-    <div class="post-cover right">
+    <div class="post-cover left">
         <img data-src="/images/covers/06.jpg" data-sizes="auto" alt="CTF大语言模型（LLM）提示词注入12种方法" class="lazyload">
     </div>
     <div class="post-info">
@@ -335,9 +358,9 @@ LLM 是 Large Language Model 的缩写，中文翻译为**“大语言模型”*
   </div>
 </div>
       <div class="post-wrapper">
-  <div class="post-wrap left" data-aos="fade-up">
+  <div class="post-wrap right" data-aos="fade-up">
       <a class="post-link" href="/2026/04/04/2026-XingMeng-Recruit/" aria-label="2026星盟招新" title="2026星盟招新"></a>
-    <div class="post-cover left">
+    <div class="post-cover right">
         <img data-src="/images/covers/04.jpg" data-sizes="auto" alt="2026星盟招新" class="lazyload">
     </div>
     <div class="post-info">
@@ -375,10 +398,10 @@ LLM 是 Large Language Model 的缩写，中文翻译为**“大语言模型”*
       </div>
       <div>
         <span class="icon-brush"></span>
-        14.2k
+        19.2k
         &nbsp;|&nbsp;
         <span class="icon-coffee"></span>
-        01:02
+        01:26
       </div>
       <div>
         <span class="icon-eye"></span>
@@ -406,7 +429,7 @@ LLM 是 Large Language Model 的缩写，中文翻译为**“大语言模型”*
 <div class="sidebar-state">
   <div class="sidebar-state-article">
     <div>文章</div>
-    <div class="sidebar-state-number">5</div>
+    <div class="sidebar-state-number">6</div>
   </div>
   <div class="sidebar-state-category">
     <div>分类</div>
