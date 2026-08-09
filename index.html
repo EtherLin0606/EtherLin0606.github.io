@@ -154,7 +154,7 @@
 <div class="sidebar-state">
   <div class="sidebar-state-article">
     <div>文章</div>
-    <div class="sidebar-state-number">8</div>
+    <div class="sidebar-state-number">10</div>
   </div>
   <div class="sidebar-state-category">
     <div>分类</div>
@@ -211,7 +211,7 @@
     <div class="widget-wrap" data-aos="fade-up">
       <h3 class="widget-title">分类</h3>
       <div class="widget">
-        <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AC%94%E8%AE%B0/" title="笔记">笔记</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%B5%9B%E9%A2%98/" title="赛题">赛题</a><span class="category-list-count">6</span></li></ul>
+        <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%AC%94%E8%AE%B0/" title="笔记">笔记</a><span class="category-list-count">3</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E8%B5%9B%E9%A2%98/" title="赛题">赛题</a><span class="category-list-count">7</span></li></ul>
       </div>
     </div>
   </div>
@@ -230,6 +230,74 @@
 </aside>
 
           <section id="main" aria-label="Main content">  <!-- ✅ 修复1: 首页文章列表增加 page.posts 空值保护 -->
+      <div class="post-wrapper">
+  <div class="post-wrap left" data-aos="fade-up">
+      <a class="post-link" href="/2026/08/09/8-3-8-9/" aria-label="8.3-8.9" title="8.3-8.9"></a>
+    <div class="post-cover left">
+        <img data-src="/images/covers/10.jpg" data-sizes="auto" alt="8.3-8.9" class="lazyload">
+    </div>
+    <div class="post-info">
+      <div class="post-meta">
+        <span><span class="icon-calendar"></span>2026-08-09</span>
+        <span><span class="icon-pencil"></span>3k 字</span>
+        <span><span class="icon-clock"></span>15 分钟</span>
+      </div>
+      <h2 class="post-title">8.3-8.9</h2>
+      <article class="post-article">
+           EasyPHP
+1234567891011121314151617181920212223&amp;lt;?php  highlight_file(__FILE__);include &amp;quot;fl4g.php&amp;quot;;  // 包含flag文件$dest0g3 = $_POST[&amp;#x27;ctf&amp;#x27;];$time = date(&amp;quot;H&amp;quot;);   // 当前小时 (00-23)$timme = date(&amp;quot;d&amp;quot;);  // 当前日期 (01-31)$timmme = date(&amp;quot;i&amp;quot;); // 当前分钟 (00-59)// 条
+      </article>
+    </div>
+  </div>
+</div>
+      <div class="post-wrapper">
+  <div class="post-wrap right" data-aos="fade-up">
+      <a class="post-link" href="/2026/08/09/Phar/" aria-label="Phar反序列化" title="Phar反序列化"></a>
+    <div class="post-cover right">
+        <img data-src="/images/covers/10.jpg" data-sizes="auto" alt="Phar反序列化" class="lazyload">
+    </div>
+    <div class="post-info">
+      <div class="post-meta">
+        <span><span class="icon-calendar"></span>2026-08-09</span>
+        <span><span class="icon-pencil"></span>2k 字</span>
+        <span><span class="icon-clock"></span>9 分钟</span>
+      </div>
+      <h2 class="post-title">Phar反序列化</h2>
+      <article class="post-article">
+           一、 核心原理
+ 1. Phar 文件的“四段式”结构
+Phar (Php ARchive) 类似 Java 的 JAR 包，其文件结构由四部分组成：
+
+
+
+结构
+作用
+攻击面
+
+
+
+
+Stub
+文件头标识，格式必须为 xxx&amp;lt;?php xxx; __HALT_COMPILER();?&amp;gt;
+伪造文件头（如 GIF89a）绕过检测
+
+
+Manifest
+存储压缩文件属性、权限及 Meta-data
+核心攻击点：Meta-data 以序列化形式存储
+
+
+Contents
+压缩文件的实际内容
+一般不涉及
+
+
+Signature
+文件末尾的签名（MD5/SHA1/SHA256/SHA512
+      </article>
+    </div>
+  </div>
+</div>
       <div class="post-wrapper">
   <div class="post-wrap left" data-aos="fade-up">
       <a class="post-link" href="/2026/08/02/2026-7-27-8-2/" aria-label="2026.7.27-8.2" title="2026.7.27-8.2"></a>
@@ -454,10 +522,10 @@ LLM 是 Large Language Model 的缩写，中文翻译为**“大语言模型”*
       </div>
       <div>
         <span class="icon-brush"></span>
-        29.5k
+        34.5k
         &nbsp;|&nbsp;
         <span class="icon-coffee"></span>
-        02:19
+        02:43
       </div>
       <div>
         <span class="icon-eye"></span>
@@ -485,7 +553,7 @@ LLM 是 Large Language Model 的缩写，中文翻译为**“大语言模型”*
 <div class="sidebar-state">
   <div class="sidebar-state-article">
     <div>文章</div>
-    <div class="sidebar-state-number">8</div>
+    <div class="sidebar-state-number">10</div>
   </div>
   <div class="sidebar-state-category">
     <div>分类</div>
